@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      This app's Wearable Data Layer capabilities, readable by the phone through CapabilityClient.
+
+      `opengym_wear` is what lets the phone fork discover a watch node appearing (it queries
+      `opengym_wear` with FILTER_REACHABLE). The capability name is fixed by
+      `link/DataLayerContract.kt`; a mismatch between the two sides is the usual reason capability
+      discovery returns nothing, and the watch's own node lookups do not depend on this file at all —
+      they fall back to `NodeClient.connectedNodes` (see `WearableDataLayerClient`).
+    -->
+    <string-array name="android_wear_capabilities">
+        <item>opengym_wear</item>
+    </string-array>
+</resources>

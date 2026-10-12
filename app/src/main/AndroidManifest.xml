@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Declares that this app runs on a Wear OS (watch) device. -->
+    <uses-feature android:name="android.hardware.type.watch" />
+
+    <!--
+      Raw TCP sockets require INTERNET on Android. This is what TcpRelayTransport (M3.3) needs;
+      the Wearable Data Layer (M3.4) needs it too. An explicit permission in the app's own manifest
+      is the only place the grant can come from on API 30+.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.OpenGymWear">
+
+        <!-- Marks this as a standalone app that works without a paired phone. -->
+        <meta-data
+            android:name="com.google.android.wearable.standalone"
+            android:value="true" />
+
+        <!--
+          `singleTop`, added for the phone-initiated launch (M8, docs/notes/26). The launcher filter
+          below already let the user start this activity; without `singleTop` a second
+          `startRemoteActivity` from the phone would stack a second instance on top of the first,
+          re-running `onCreate` and rebuilding the repository. Raising the instance that is already
+          there is the behaviour "the timer appears on the watch" needs.
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.OpenGymWear">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--
+              The phone-initiated launch path. `RemoteActivityHelper.startRemoteActivity` (phone:
+              WearLaunch.java) delivers ACTION_VIEW + `CATEGORY_BROWSABLE` + a `wear://*` data URI;
+              the watch's Play services resolve it against this filter and start this activity.
+              Nothing else on a Wear OS app can be started by a peer from the background — the Data
+              Layer has no activity-start privilege and a plain background start is blocked from
+              API 29.
+
+              Both categories are load-bearing:
+                - BROWSABLE because the caller is required to set it (the class throws
+                  IllegalArgumentException without it), and
+                - DEFAULT because that is what lets an implicit `startActivity` resolve here at all.
+
+              The `pathPrefix` is deliberately under our app's own namespace so it cannot shadow
+              another watch app's `wear://` filter, and must match `WearLaunch.PATH`
+              (`/opengym/watch`) on the phone — one string each side, documented in
+              docs/notes/26-watch-autolaunch-findings.md.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/opengym/watch" />
+            </intent-filter>
+
+            <!--
+              The second URI shape, `app://opengym-wear`, declared because the wiring plan named it
+              and the launch mechanism must accept whichever URI the plan settles on. It is NOT
+              needed by the phone half as implemented (`WearLaunch.PATH`), and it is only reachable
+              implicitly — `RemoteActivityHelper` strips the component from the intent, so the
+              explicit `-n` form proves exported-ness but never resolves a filter. Both filters carry
+              DEFAULT + BROWSABLE for the same reason as above.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="app" android:host="opengym-wear" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          The Data Layer's receive path (M3.4). Manifest registration is not optional: it is the
+          only way Android will unfreeze this app's process to deliver a frame from the phone, so
+          without it a `state` pushed while the watch app is not in the foreground would be lost.
+
+          **Two filters, because the phone uses two carriers.** `hello`, `ping`, `command`, `ack`
+          and `pong` are messages, but `state` — the one frame that carries the workout — is written
+          as a DataItem as well (docs/notes/12-datalayer-decisions.md §1a). With
+          `MESSAGE_RECEIVED` alone the handshake completes and the link reads `Connected` while
+          every `state` frame is discarded, which is precisely the defect a hardware run found
+          (docs/notes/11a-device-handoff-shepherd.md §2-§4).
+
+          The path filter must carry a scheme and a host or the path attributes are ignored (see
+          docs/research/02-wear-phone-integration.md §5.1). `pathPrefix="/opengym"` deliberately
+          covers the single `/opengym/wear` frame path used in both directions
+          (docs/notes/12-datalayer-decisions.md §1); the prefix rather than the exact path means a
+          future second path is one string to change here rather than a re-install that misses it.
+        -->
+        <service
+            android:name=".link.OpenGymWearListenerService"
+            android:exported="true"
+            android:label="@string/app_name"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/opengym" />
+            </intent-filter>
+            <!--
+              The DataItem carrier. Without this the phone's `state` frame has no receiver, which
+              the watch reports as `Failed to deliver message to AppKey[...]; Event[...: dataChanged,
+              DataWearableServiceEvent(/opengym/wear)]` against our own signing identity.
+            -->
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/opengym" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

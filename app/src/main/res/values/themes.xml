@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Dark, watch-optimized window theme. The UI itself is rendered by Compose. -->
+    <style name="Theme.OpenGymWear" parent="@android:style/Theme.DeviceDefault.NoActionBar" />
+</resources>

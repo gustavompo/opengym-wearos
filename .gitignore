@@ -1,0 +1,30 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Shared signing credentials for the openGym Wear OS pair (phone fork + watch app).
+# NEVER COMMIT — it contains a plaintext password. The canonical copy lives outside the repo, in
+# F:\android\projects\opengym-wearos\keystore\keystore.properties
+keystore.properties
+
+# --- added for the M1 recovery point (note 39): build outputs, Gradle caches, IDE state, dumps ---
+build/
+*/build/
+.gradle/
+.kotlin/
+local.properties
+.idea/
+*.apk
+*.hprof
