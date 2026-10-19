@@ -49,6 +49,18 @@ no Capacitor: the watch renders its own Compose for Wear OS UI.
    adb -s <watch-serial> shell am start -n ch.duartesantos.opengym.test/ch.duartesantos.opengym.wear.MainActivity --es transport fake
    ```
 
+   **`app-debug.apk` is not usable for daily wear.** A debug build is `debuggable` and skips R8, so
+   every list scroll is visibly clunky — the UI looks broken in a way the same code is not. For a
+   watch you actually wear, install the release build instead:
+
+   ```bash
+   ./gradlew.bat :app:assembleRelease
+   adb -s <watch-serial> install -r -d app/build/outputs/apk/release/app-release.apk
+   ```
+
+   Release installs as `ch.duartesantos.opengym` (no `.test` suffix), which is the id the phone's
+   release build uses. Same variant on both sides — see the pairing table below.
+
 3. **Install the phone app** from the `wear-bridge` branch of the fork, building it the way that
    branch's own README describes. The applicationIds must line up:
 
