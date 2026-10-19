@@ -78,7 +78,7 @@ no Capacitor: the watch renders its own Compose for Wear OS UI.
 |---|---|---|
 | `debug` | debuggable, no R8 | developing. **Never measure performance on it** — it costs ~30 ms more per frame, which is enough to make a smooth list look broken |
 | `benchmark` | not debuggable, R8 on, `<profileable>` | measuring on the real watch. This is representative of what a user gets |
-| `release` | not debuggable, R8 off (today) | shipping. Turning R8 on for release is still open — until then a release build looks like the debug one on a slow watch |
+| `release` | not debuggable, R8 on | shipping and daily wear. Same code shape as `benchmark`, 23 MB of debug dex down to 2.6 MB |
 
 ## How the two sides talk
 

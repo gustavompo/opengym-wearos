@@ -37,7 +37,10 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 on for release: the watch's CPU is the constraint, so the smaller, inlined
+            // dex is worth it. The `benchmark` variant below has always run with R8 on, so this
+            // is the configuration that has been measured, not a new one.
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         debug {
