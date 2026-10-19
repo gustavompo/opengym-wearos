@@ -20,10 +20,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
  *
  * **Both carriers, because the phone uses both.** `hello`/`ping`/`command`/`ack`/`pong` travel as
  * messages, but `state` — the one frame that carries the workout — travels as a `DataItem` *and* as a
- * message (`12-datalayer-decisions.md` §1a). Declaring `MESSAGE_RECEIVED` alone is therefore a
+ * message. Declaring `MESSAGE_RECEIVED` alone is therefore a
  * receiver for every frame except the one that matters: the handshake completes, the node is
  * discovered, the link reads `Connected`, and the payload is dropped on the doorstep. That was the
- * defect found on real hardware (`docs/notes/11a-device-handoff-shepherd.md` §2-§4), and the system
+ * defect found on real hardware, and the system
  * names it at runtime as `Failed to deliver message to AppKey[...]; Event[...: dataChanged,
  * DataWearableServiceEvent(/opengym/wear)]`.
  *
@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
  * returns. Everything that can be reasoned about — routing by path, decoding, revisions — happens in
  * [DataLayerTransport] and [TransportWorkoutRepository], which are testable without a device.
  * Neither handler checks the path for the same reason: one filter covers `/opengym`, the transport
- * drops anything that is not `/opengym/wear`, and a second place to disagree is exactly what §1 of
+ * drops anything that is not `/opengym/wear`, and a second place to disagree is exactly what of
  * the decisions document exists to prevent.
  */
 class OpenGymWearListenerService : WearableListenerService() {

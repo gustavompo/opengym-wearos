@@ -18,7 +18,7 @@ import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 
 /**
- * The phone↔watch wire format, version 1. Contract: `docs/protocol.md`.
+ * The phone↔watch wire format, version 1. Contract: ``.
  *
  * Framing is the transport's job (one frame per line on the TCP relay, one frame per DataItem or
  * Message). This file is only the JSON, so it is identical on both transports and is unit-testable
@@ -136,7 +136,7 @@ object WireProtocol {
       // Task 2: the profile's unit, for the watch to render `weightKg` in. Always written, so the
       // two encoders agree on the shape; a kg profile writes "kg" and nothing changes for it.
       put("unit", workout.unit.wireName)
-      // M7.3, plan section 2.1. `JsonNull` when null rather than an omitted key: "present whenever
+      // section 2.1. `JsonNull` when null rather than an omitted key: "present whenever
       // `workout` is non-null" is the rule, and a null value is how "the phone could not tell us"
       // is spelled. Epoch 0 is never written - it would decode to a 20 491-day timer on the watch.
       put("startedAt", workout.startedAtMillis)
@@ -217,7 +217,7 @@ object WireProtocol {
       // Task 2. Total by construction: only the exact string "lb" is pounds, and an absent, null
       // or unknown `unit` is kilograms - so an older phone build cannot change what the user sees.
       unit = WeightUnit.fromWire(obj.str("unit")),
-      // Plan section 2.1 rule 5: a missing or unparseable `startedAt` decodes as null and NEVER as 0.
+      // section 2.1 rule 5: a missing or unparseable `startedAt` decodes as null and NEVER as 0.
       // Zero and negative are treated as "unknown" too - both would render an elapsed time that is
       // not the workout's, and the honest answer for "the phone did not tell us" is no timer at all.
       startedAtMillis = obj.long("startedAt")?.takeIf { it > 0L },
@@ -226,13 +226,13 @@ object WireProtocol {
   }
 
   /**
-   * `workout.entries[]`, or null when the phone sent none usable (M7.3, plan section 2.1).
+   * `workout.entries[]`, or null when the phone sent none usable.
    *
    * Null covers "the field is absent" (an older phone build, a recorded TCP fixture) **and** "the
    * field is there but not wholly well-formed". A partial list would break the `entries[i].index ==
    * i` guarantee that carrying the index explicitly exists to provide, and both sides already have a
    * defined answer for "no list": the watch renders a **one-row** list from the scalar fields
-   * (`WorkoutState.listRows`, plan section 2.1 rule 6). Never throws, and never returns a list that
+   * (`WorkoutState.listRows`, section 2.1 rule 6). Never throws, and never returns a list that
    * is only partly trusted.
    */
   private fun decodeEntries(element: JsonElement?): List<WorkoutEntrySnapshot>? {
@@ -356,7 +356,7 @@ data class AckFrame(
   val sentAtMillis: Long,
 ) : LinkFrame
 
-/** Watch → phone: one user action. Names and args are fixed by `docs/protocol.md` §4. */
+/** Watch → phone: one user action. Names and args are fixed by ``. */
 data class CommandFrame(
   val id: String,
   val name: CommandName,
@@ -369,7 +369,7 @@ data class CommandFrame(
   val delta: Int? get() = (args["delta"] as? JsonPrimitive)?.intOrNull
   val deltaSeconds: Int? get() = (args["deltaSeconds"] as? JsonPrimitive)?.intOrNull
 
-  /** `selectExercise`'s absolute target index (M7.3), or null when the frame carries no usable one. */
+  /** `selectExercise`'s absolute target index, or null when the frame carries no usable one. */
   val index: Int? get() = (args["index"] as? JsonPrimitive)?.intOrNull
 }
 
@@ -402,14 +402,14 @@ enum class CommandName(val wire: String) {
   ADJUST_REST("adjustRest"),
   SKIP_REST("skipRest"),
 
-  // M7.2 (wheel) — additive; merged by hand.
-  // Absolute setters, sent once per drag on release (plan §2.3). Same target as the two ADJUST_*
+  //  (wheel) — additive; merged by hand.
+  // Absolute setters, sent once per drag on release. Same target as the two ADJUST_*
   // above: the open set of the current exercise.
   SET_WEIGHT("setWeight"),
   SET_REPS("setReps"),
 
   /**
-   * M7.3, plan section 2.2 - the workout page's tap. Absolute and idempotent like the two chevrons:
+   * section 2.2 - the workout page's tap. Absolute and idempotent like the two chevrons:
    * it carries the index the user chose rather than a step, so it is **not** `baseRev`-gated and has
    * no TTL, and a replay after a reconnect still means the same thing. The phone writes
    * `active.cur` and nothing else.
@@ -443,14 +443,14 @@ data class WorkoutSnapshot(
    */
   val unit: WeightUnit = WeightUnit.Kilograms,
   /**
-   * `active.start`, epoch millis, or null when the phone did not say (M7.3, plan section 2.1).
+   * `active.start`, epoch millis, or null when the phone did not say.
    *
    * Null is load-bearing: epoch 0 would render a 20 491-day elapsed timer, so an absent or
    * unparseable `startedAt` must land here as null, and the workout page hides the timer for it.
    */
   val startedAtMillis: Long? = null,
   /**
-   * Every exercise in the session, in order (M7.3, plan section 2.1), or null when the phone sent
+   * Every exercise in the session, in order, or null when the phone sent
    * none usable - an older phone build, or a recorded TCP fixture. `WorkoutState.listRows` turns
    * null into a one-row list built from the scalar fields above.
    */
@@ -458,7 +458,7 @@ data class WorkoutSnapshot(
 )
 
 /**
- * One row of `workout.entries[]` (M7.3, plan section 2.1): an exercise and its progress.
+ * One row of `workout.entries[]`: an exercise and its progress.
  *
  * [index] is carried explicitly and is asserted equal to the entry's position on decode, so a
  * consumer that filters or sorts cannot silently mis-map. Progress is `done/total` sets only.
@@ -544,7 +544,7 @@ object WatchCommands {
       mapOf("delta" to JsonPrimitive(delta)),
     )
 
-  // M7.2 (wheel) — additive; merged by hand.
+  //  (wheel) — additive; merged by hand.
   // `kg` is a finite Double the phone snaps to 0.5 and clamps to 0.0..500.0; `reps` an Int clamped
   // to 1..99. Absolute, so `baseRev` is carried as information rather than as a gate.
   fun setWeight(id: String, baseRev: Long, issuedAtMillis: Long, kg: Double) =
@@ -578,7 +578,7 @@ object WatchCommands {
     CommandFrame(id, CommandName.SKIP_REST, baseRev, issuedAtMillis)
 
   /**
-   * M7.3, plan section 2.2. Absolute: it carries the index the user tapped, not a step, so a replay
+   * section 2.2. Absolute: it carries the index the user tapped, not a step, so a replay
    * after a reconnect still means the same thing. The phone validates the range and answers
    * `rejected: invalid` for anything out of it.
    */

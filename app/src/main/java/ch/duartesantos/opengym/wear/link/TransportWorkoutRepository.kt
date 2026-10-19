@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 /**
  * A [WorkoutRepository] whose state comes from the phone over a [Transport], as specified in
- * `docs/protocol.md`.
+ * ``.
  *
  * The phone is the source of truth, so this class mirrors only what it receives:
  *  - it never mutates state in response to a command, and never applies a command optimistically;
@@ -30,9 +30,9 @@ import kotlinx.coroutines.launch
  *  - `state` frames whose `rev` is not higher than the last accepted one are discarded.
  *
  * Commands are written to the transport, queued while it is down, and retried with their original
- * ids (§5). A lost command therefore shows as "the tap did nothing" rather than as a local lie.
+ * ids. A lost command therefore shows as "the tap did nothing" rather than as a local lie.
  */
-/** Log tag for the one-off "this frame carries no `workout.entries`" notice (M7.3). */
+/** Log tag for the one-off "this frame carries no `workout.entries`" notice. */
 private const val TAG = "WearWorkoutRepository"
 
 /**
@@ -52,14 +52,14 @@ class TransportWorkoutRepository(
   private val tickIntervalMillis: Long = 1_000L,
   private val ackTimeoutMillis: Long = WireProtocol.ACK_TIMEOUT_MS,
   /**
-   * Where the one-off "the phone sent no `entries`" notice goes (M7.3, plan section 2.1 rule 6).
+   * Where the one-off "the phone sent no `entries`" notice goes.
    * Injected so a JVM unit test can assert it fires exactly once without `android.util.Log` having
    * to work off-device.
    */
   private val warn: (String) -> Unit = DEFAULT_WARN,
 ) : WorkoutRepository, PhoneLinkSource {
 
-  /** Distinguishes this watch boot's command ids from any earlier boot's (`docs/protocol.md` §5.1). */
+  /** Distinguishes this watch boot's command ids from any earlier boot's. */
   private val bootStamp: Long = timeSource.nowMillis()
   private val idCounter = AtomicLong(0)
 
@@ -79,7 +79,7 @@ class TransportWorkoutRepository(
   /** The newest accepted `state` frame, or null when none has arrived yet. */
   private var snapshot: StateFrame? = null
 
-  /** The workout page's tap (M7.3). See [ExerciseSelection]. */
+  /** The workout page's tap. See [ExerciseSelection]. */
   private val selection = MutableStateFlow<ExerciseSelection>(ExerciseSelection.Idle)
 
   /**
@@ -89,7 +89,7 @@ class TransportWorkoutRepository(
    */
   private var warnedMissingEntries = false
 
-  /** High-water mark for §5.2. Reset when the phone's process restarts (a new `hello`). */
+  /** High-water mark for. Reset when the phone's process restarts (a new `hello`). */
   private var highWaterRev: Long = -1L
 
   private val pending = ArrayDeque<CommandFrame>()
@@ -107,7 +107,7 @@ class TransportWorkoutRepository(
       }
     }
     scope.launch {
-      // The watch speaks first (§2), and again after every reconnect. StateFlow already emits only
+      // The watch speaks first, and again after every reconnect. StateFlow already emits only
       // on change, so filtering is enough — `distinctUntilChanged` on a StateFlow is an error.
       transport.connectionState
         .filter { it == ConnectionState.Connected }
@@ -123,7 +123,7 @@ class TransportWorkoutRepository(
 
   override fun observeWorkout(): StateFlow<WorkoutState> = state.asStateFlow()
 
-  /** The workout page's tap state (M7.3). */
+  /** The workout page's tap state. */
   override fun observeExerciseSelection(): StateFlow<ExerciseSelection> = selection.asStateFlow()
 
   /** Link health for the UI's "phone not connected" state. */
@@ -147,7 +147,7 @@ class TransportWorkoutRepository(
     dispatch(WatchCommands.previousExercise(nextId(), baseRev(), timeSource.nowMillis()))
 
   /**
-   * M7.3, plan section 2.2. Absolute: the index is the user's intent, so nothing here is applied
+   * section 2.2. Absolute: the index is the user's intent, so nothing here is applied
    * locally and the row stays pending until the phone's `state` carries it. [ExerciseSelection]
    * reports how that wait ends.
    */
@@ -169,10 +169,10 @@ class TransportWorkoutRepository(
     dispatch(WatchCommands.adjustReps(nextId(), baseRev(), timeSource.nowMillis(), delta))
   }
 
-  // M7.2 (wheel) — additive; merged by hand.
+  //  (wheel) — additive; merged by hand.
   //
   // Absolute, so neither is guarded on "the value changed": the value IS the user's intent and a
-  // late delivery of the same frame is the same state (§2.3). A drag that returns to where it
+  // late delivery of the same frame is the same state. A drag that returns to where it
   // started is filtered on the UI side, before it ever gets here.
   @Synchronized
   override fun setWeight(weightKg: Double) =
@@ -208,10 +208,10 @@ class TransportWorkoutRepository(
   }
 
   private suspend fun deliver(command: CommandFrame) {
-    // §2: with no common protocol version the watch does not send commands at all. Dropping here
+    // with no common protocol version the watch does not send commands at all. Dropping here
     // rather than queueing keeps the queue from filling with commands the phone cannot understand.
     // A pending `selectExercise` is released rather than left waiting for a state that can never
-    // come (plan §2.4 rule 6).
+    // come.
     if (!link.value.compatible) {
       abandonSelection(command)
       return
@@ -313,14 +313,14 @@ class TransportWorkoutRepository(
     val negotiated = WireProtocol.negotiate(listOf(WireProtocol.VERSION), frame.proto)
     updateLink { it.copy(compatible = negotiated != null, negotiatedVersion = negotiated) }
     if (negotiated == null) {
-      // Incompatible: stop sending commands, keep the last known state, keep retrying hello (§2).
+      // Incompatible: stop sending commands, keep the last known state, keep retrying hello.
       pending.clear()
       inFlight.clear()
       refreshPendingCount()
       return
     }
     // A new hello means a new phone epoch: rev may legitimately be lower than the last one seen
-    // (§5.2). The phone announces one whenever its counter really restarts; a restart that keeps
+    // . The phone announces one whenever its counter really restarts; a restart that keeps
     // its stored epoch continues the count instead, which is why this is not a reset to rely on.
     highWaterRev = -1L
   }
@@ -339,19 +339,19 @@ class TransportWorkoutRepository(
       // A *retryable* refusal — `rejected: busy`, or a reason this build has never heard of. The
       // entry deliberately stays in `inFlight`, so the ack sweeper re-sends the same id after
       // `ackTimeoutMillis`, up to `MAX_COMMAND_ATTEMPTS`. That is the whole point of the id: the
-      // phone comes back (M4.7's workout-scoped foreground service is what makes the window rare),
+      // phone comes back,
       // and the tap the user made is not silently discarded.
       refreshPendingCount()
       return
     }
     // `applied` and `duplicate` both mean "stop retrying", and a *semantic* refusal
     // (`stale`/`invalid`/`noWorkout`) means the phone understood the command and declined it, so
-    // re-sending the identical bytes would be declined identically. See `docs/protocol.md` §5.5.
+    // re-sending the identical bytes would be declined identically. See ``.
     val entry = inFlight.remove(frame.id)
     refreshPendingCount()
-    // M7.3, plan §2.4 rule 6: a `selectExercise` that did not come back `applied` will never be
+    // rule 6: a `selectExercise` that did not come back `applied` will never be
     // followed by a matching `state`, so the workout page's pending row is released and the list
-    // stays. `applied` deliberately does NOT release it: §2.2 guarantees the matching state, and
+    // stays. `applied` deliberately does NOT release it: guarantees the matching state, and
     // the row must not switch to the exercise page before it arrives.
     if (entry != null && frame.result != AckResult.APPLIED) abandonSelection(entry.command)
   }
@@ -373,7 +373,7 @@ class TransportWorkoutRepository(
         WorkoutState.None
       } else {
         val rest = frame.rest
-        // M7.3, plan §2.1 rule 6: an older phone build — or a recorded TCP fixture — carries no
+        // rule 6: an older phone build — or a recorded TCP fixture — carries no
         // `entries`. Say so once, and let `WorkoutState.listRows` render the one row the scalars
         // describe rather than an empty list.
         val entries = workout.entries
@@ -415,7 +415,7 @@ class TransportWorkoutRepository(
   }
 
   /**
-   * Plan §2.4 rule 6, the accepted half: the pending tap ends when the projection carries the index
+   *  rule 6, the accepted half: the pending tap ends when the projection carries the index
    * it asked for. The page does the switching; the repository only reports that the wait is over.
    */
   @Synchronized
@@ -427,7 +427,7 @@ class TransportWorkoutRepository(
   }
 
   /**
-   * Plan §2.4 rule 6, the abandoned half: this command will never be followed by a matching `state`,
+   *  rule 6, the abandoned half: this command will never be followed by a matching `state`,
    * so the pending row is released and the list stays. Only `selectExercise` has a pending row to
    * release; every other command's failure is the ack machinery's business and nothing more.
    */
@@ -483,7 +483,7 @@ class TransportWorkoutRepository(
             entry.attempts
           }
         }
-      // M7.3, plan §2.4 rule 6: the retry budget is spent, so this `selectExercise` will never be
+      // rule 6: the retry budget is spent, so this `selectExercise` will never be
       // followed by a matching `state`. Release the pending row rather than leaving it pending for
       // ever — the third of the three ways a tap can end without a state.
       if (exhausted) {
@@ -509,7 +509,7 @@ internal fun CommandFrame.isTimeBound(): Boolean =
 /**
  * The refusal reasons that end the watch's retries for a command id: the phone understood the
  * command and declined it, so re-sending the identical bytes would be declined identically.
- * Contract: `docs/protocol.md` §5.5.
+ * Contract: ``.
  */
 internal val TERMINAL_REFUSAL_REASONS: Set<String> = setOf("stale", "invalid", "noWorkout")
 
@@ -519,7 +519,7 @@ internal val TERMINAL_REFUSAL_REASONS: Set<String> = setOf("stale", "invalid", "
  * `applied` and `duplicate` obviously are. A `rejected` ack is **not automatically terminal**:
  * `stale`/`invalid`/`noWorkout` are semantic refusals ([TERMINAL_REFUSAL_REASONS]), while `busy` —
  * the name for "no JS right now", which is what a frozen WebView with no workout-scoped foreground
- * service produces (`12-datalayer-decisions.md` §4) — is a temporary refusal the retry machinery
+ * service produces — is a temporary refusal the retry machinery
  * exists for.
  *
  * An **unrecognised** reason is treated as retryable on purpose. The two failure modes are not

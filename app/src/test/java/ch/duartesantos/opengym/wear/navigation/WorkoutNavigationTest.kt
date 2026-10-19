@@ -10,7 +10,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Plan §2.4, rule by rule. The state machine is a plain class precisely so these need no device: the
+ * rule by rule. The state machine is a plain class precisely so these need no device: the
  * failure this file exists to catch — a tapped row that never resolves, or a screen that switches
  * before the phone's projection caught up — is invisible in a UI test that just clicks and waits.
  */
@@ -199,7 +199,7 @@ class WorkoutNavigationTest {
     nav.openWorkoutPage()
     nav.onRowTap(2, state(exerciseIndex = 0))
 
-    // §2.2 guarantees a matching `state` after an `applied`, so clearing here would switch the screen
+    //  guarantees a matching `state` after an `applied`, so clearing here would switch the screen
     // before the projection caught up - the exact frame the rule exists to prevent.
     nav.onSelection(ExerciseSelection.Pending(2))
     nav.onSelection(ExerciseSelection.Idle)

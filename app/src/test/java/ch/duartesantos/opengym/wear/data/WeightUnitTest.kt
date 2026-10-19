@@ -112,7 +112,7 @@ class WeightUnitTest {
   @Test
   fun aPoundStepIsLessThanHalfAKilogram() {
     // 1 lb = 0.45359237 kg, which the phone's old 0.5 kg snap would have eaten — the reason the
-    // phone's snap had to move into the profile's unit (notes 36 §4).
+    // phone's snap had to move into the profile's unit.
     val onePoundKg = lb.toKg(1.0)
     assertEquals(0.45359237, onePoundKg, 1e-8)
     assertTrue(onePoundKg < 0.5)

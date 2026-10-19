@@ -24,7 +24,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * M2.4: the rotating crown, on the device, through the real input pipeline.
+ * the rotating crown, on the device, through the real input pipeline.
  *
  * Two independent pieces of evidence:
  *

@@ -18,15 +18,15 @@ import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
 /**
- * The workout page's presentation contract on a device (U2b):
+ * The workout page's presentation contract on a device:
  *
  *  - the header (workout name + elapsed timer) sits in the top quarter of the disc, not the middle,
  *    so the list is the page's focus — pinned as *bounds* against the screen, not as an impression;
  *  - the timer keeps its hide-when-`startedAt`-is-null rule at the composable level;
- *  - long realistic names (the p90/p100 set of `docs/notes/30-exercise-name-lengths.md`) render
+ *  - long realistic names render
  *    without clipping — the no-clip pixel proof is measured host-side on the screenshot the last
  *    test holds on screen for (an emulator test cannot see pixels, and the model does not look at
- *    images; see findings §3).
+ *  images).
  *
  * Rendered through [WorkoutPage] alone (not `WearApp`): these tests are about the page's own
  * presentation, and the navigation behaviour is already pinned by `WorkoutPageTest` /
@@ -83,7 +83,7 @@ class WorkoutPageLayoutTest {
     val timer = rule.onNodeWithTag(WORKOUT_PAGE_TIMER_TAG).fetchSemanticsNode().boundsInRoot
     val row0 = rule.onNodeWithTag(workoutRowTag(0)).fetchSemanticsNode().boundsInRoot
 
-    // The name was at y 134..187 of 454 (29.5 %..41 %) before U2b; it must now open on the disc's
+    // The name was at y 134..187 of 454 (29.5 %..41 %) before; it must now open on the disc's
     // top quarter — the assertion threshold is deliberately well clear of the old position.
     assertTrue("workout name top ${name.top} of $screenHeight must be in the top quarter", name.top < screenHeight * 0.25f)
     // The timer follows the name and stays above the list.
@@ -129,12 +129,12 @@ class WorkoutPageLayoutTest {
 
   /**
    * Long realistic names, rendered and HElD on screen for 35 s so the harness can screencap and
-   * measure the ink against the bezel arc (findings §3; the model does not look at images).
-   * The names are note 30's p90/p95/p100 + the one the fake repo would show, and the workout name
+   * measure the ink against the bezel arc.
+   * The names are 's p90/p95/p100 + the one the fake repo would show, and the workout name
    * is the longest row name pushed up into the title band — an over-stress, on purpose.
    *
    * The test itself only asserts that everything renders and the list scrolls; the pixel numbers
-   * are measured host-side and reported in `docs/notes/32-...findings.md` §3.
+   * are measured host-side.
    */
   @Test
   fun longNamesRenderAndHoldStillForThePixelProof() {

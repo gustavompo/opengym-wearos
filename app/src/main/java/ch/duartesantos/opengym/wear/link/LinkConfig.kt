@@ -21,7 +21,7 @@ import ch.duartesantos.opengym.wear.data.WorkoutRepository
  * `--es transport fake` is what the instrumented suite and anything else that must run with no phone
  * uses. There is deliberately no silent fallback from [TransportKind.DATALAYER] to
  * [TransportKind.FAKE]: a watch rendering a plausible-looking fake workout it never received is
- * indistinguishable from a live one, which is exactly the confusion `12-datalayer-decisions.md` §6
+ * indistinguishable from a live one, which is exactly the confusion `12-datalayer-decisions.md`
  * exists to prevent. With no phone reachable the Data Layer transport reports `Disconnected` and the
  * screen says so.
  */
@@ -55,12 +55,12 @@ enum class TransportKind(val wire: String) {
   /** `play-services-wearable`. The production path, and the default. */
   DATALAYER("datalayer"),
 
-  /** Newline-delimited JSON over TCP. Emulator development and CI only (`docs/protocol.md` §7). */
+  /** Newline-delimited JSON over TCP. Emulator development and CI only. */
   TCP("tcp"),
   ;
 
   companion object {
-    /** What a normally-launched app uses: prefer the Data Layer (`12-datalayer-decisions.md` §6). */
+    /** What a normally-launched app uses: prefer the Data Layer. */
     val DEFAULT: TransportKind = DATALAYER
 
     /** The override a user actually asked for, or null when there was none. */

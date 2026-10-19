@@ -16,7 +16,7 @@ package ch.duartesantos.opengym.wear.data
  * }
  * ```
  *
- * openGym's `target` / `plan` / `planned` / `routineIds` / `bw` and the rest of the 4 KB document
+ * openGym's `target` / `` / `planned` / `routineIds` / `bw` and the rest of the 4 KB document
  * are intentionally absent — the watch never reads them.
  *
  * The rest *duration* is per exercise in the reference UX ("rest 90 s" after a compound lift, less
@@ -33,9 +33,9 @@ data class ActiveWorkout(
   /**
    * `active.start`, epoch millis, or null when the document has no start.
    *
-   * M7.3: the workout page derives its elapsed timer from this against the watch's own clock. Null
+   * the workout page derives its elapsed timer from this against the watch's own clock. Null
    * means "the timer is hidden" — and it is never coerced to 0, which would read as 20 491 days
-   * (plan §2.1 rule 5). [FullBodyA] leaves it null on purpose: the fake stamps a recent start in its
+   * . [FullBodyA] leaves it null on purpose: the fake stamps a recent start in its
    * own constructor so a session does not appear to have begun in 1970, and so a test can drive the
    * timer through [TimeSource] instead of reading the wall clock.
    */

@@ -33,7 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * M7.3 on a device: the workout page renders the session's list, a row tap moves the exercise, and
+ *  on a device: the workout page renders the session's list, a row tap moves the exercise, and
  * both ways of going BACK return to the list.
  *
  * Driven through the whole `WearApp` over the fake repository, so the navigation state machine and the
@@ -54,7 +54,7 @@ class WorkoutPageTest {
     rule.setContent { WearApp(repository = FakeWorkoutRepository()) }
   }
 
-  /** The first exercise's `‹` opens the list (plan §2.4 rule 4). */
+  /** The first exercise's `‹` opens the list. */
   private fun openTheList() {
     rule.onNodeWithTag(EXERCISE_PAGE_PREV_TAG).performClick()
     rule.onNodeWithTag(WORKOUT_PAGE_TAG).assertIsDisplayed()
@@ -178,12 +178,12 @@ class WorkoutPageTest {
   }
 
   /**
-   * Plan §2.5's behavioural boundary, the BACK half: a horizontal swipe on the exercise page — over
+   * The behavioural boundary, the BACK half: a horizontal swipe on the exercise page — over
    * the spinner cards, which is where the wheel's vertical drag lives — navigates, with no button
    * pressed.
    *
    * (The wheel's own half, "a vertical drag changes the value and does not navigate", belongs to agent
-   * B's `ui/exercise` tests after the M7.4 merge. The second test below proves the part this change is
+   * B's `ui/exercise` tests after the merge. The second test below proves the part this change is
    * responsible for: that a vertical drag does not navigate.)
    */
   @Test

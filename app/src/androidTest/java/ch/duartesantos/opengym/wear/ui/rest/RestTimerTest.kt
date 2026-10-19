@@ -23,7 +23,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * M2.5's screen, rendered on a device: the strings, the three controls, and M2.8's cue schedule.
+ * s screen, rendered on a device: the strings, the three controls, and 's cue schedule.
  *
  * The cue tests substitute a recording [RestToneSink] through [RestTimer]'s trailing parameter, so
  * they observe what the screen decided to play without making a sound.
@@ -59,7 +59,7 @@ class RestTimerTest {
   }
 
   /**
-   * U2a: the countdown moved UP (offset -62 -> -75 px) and the `Next:` label takes two lines, so
+   * the countdown moved UP (offset -62 -> -75 px) and the `Next:` label takes two lines, so
    * the countdown's box now clears the `Next:` block entirely. Semantics bounds can't see the
    * bezel, but they can pin the vertical order this restructure promised.
    */
@@ -92,7 +92,7 @@ class RestTimerTest {
     assertTrue(next.bottom <= set.top)
   }
 
-  /** U2a: the `-15` / `+15` stadiums are larger than the reference's 77 x 48 px. */
+  /** the `-15` / `+15` stadiums are larger than the reference's 77 x 48 px. */
   @Test
   fun theRestPillsAreLargerThanTheReferenceTarget() {
     setRestScreen(restState(remaining = 89, total = 120))

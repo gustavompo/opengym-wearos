@@ -35,7 +35,7 @@ import org.junit.Test
  *
  * What this does **not** prove: Android's `INTERNET` permission, the emulator's `10.0.2.2`
  * host-loopback hop, or `adb forward`. Those need a device and are listed as unverified in
- * `docs/notes/08-protocol-transport.md`.
+ * ``.
  */
 class TcpRelayTransportTest {
 

@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
  * **This is the one class in the watch's link stack that nothing here can test.** Neither emulator on
  * this machine has a Google account, the Wear companion app cannot be installed without one, and
  * every Data Layer call therefore fails with `ApiException: 4000 TARGET_NODE_NOT_CONNECTED`
- * (`docs/research/04-datalayer-emulator-spike.md`, `docs/notes/12-datalayer-decisions.md` §7). What
+ * . What
  * *is* tested is everything above it, through a fake implementation of [DataLayerClient]: node
  * selection, disconnection, recovery, routing, retention.
  *
@@ -39,7 +39,7 @@ import kotlinx.coroutines.withContext
  *    been killed, which is the entire reason the Data Layer is being used instead of the TCP relay.
  * 2. **Nothing here throws.** Play services missing, Play services not available, no phone paired —
  *    all of them are "no node", so the app says "phone not connected" rather than crashing
- *    (`docs/research/04-datalayer-emulator-spike.md` §2a, where an unhandled `ApiException` killed
+ *  (`` a, where an unhandled `ApiException` killed
  *    the phone-side spike app outright).
  *
  * @param context an application context; held for the lifetime of the client.
@@ -102,7 +102,7 @@ class WearableDataLayerClient(
       Wearable.getMessageClient(context).sendMessage(nodeId, path, payload).await()
       // `MessageClient` has no persistence and no retry: success means "handed to the Data Layer".
       // Delivery is at-least-once at best, which is exactly the contract the repository assumes
-      // (`docs/protocol.md` §5.3).
+      // .
       SendOutcome.Delivered
     } catch (e: ApiException) {
       when (e.statusCode) {
@@ -121,12 +121,12 @@ class WearableDataLayerClient(
     }
 
   /**
-   * Reads the stored item, which is the half of §1a that no change event can cover: a process that
+   * Reads the stored item, which is the half of a that no change event can cover: a process that
    * starts after the write has nothing to be notified about.
    *
    * Two queries rather than one because the URI matcher's wildcard behaviour for an authority-less
    * `wear:/<path>` URI is the one thing here that cannot be checked on this machine (no paired node,
-   * no Google account — §7). The first query is the documented form and answers in one call; the
+   * no Google account —). The first query is the documented form and answers in one call; the
    * second asks for every item in the local store and filters by path locally, which is the same
    * question with no matching rule left to get wrong. Both are cheap and this runs once per connect,
    * not in a loop.

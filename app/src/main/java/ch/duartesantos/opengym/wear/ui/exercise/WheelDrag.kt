@@ -6,7 +6,7 @@ import ch.duartesantos.opengym.wear.data.clampReps
 import ch.duartesantos.opengym.wear.data.clampWeightKg
 
 /*
- * M7.2 — the drag wheel's arithmetic, deliberately outside the composable.
+ *  — the drag wheel's arithmetic, deliberately outside the composable.
  *
  * The wheel is a cylinder: the card shows three values (above / selected / below) over
  * `cardHeight / 3` each, so **one row of travel is one step**. All of this file is pure — no
@@ -71,7 +71,7 @@ internal fun wheelReps(baseReps: Int, steps: Int): Int = clampReps(baseReps + st
  * the integer count in it exactly.
  *
  * The base is snapshotted when the drag starts. That is what "ignore incoming projection for that
- * column until the drag ends" (plan §2.6) means mechanically: a `state` that arrives mid-drag
+ * column until the drag ends" means mechanically: a `state` that arrives mid-drag
  * cannot re-base a moving wheel, so the digits never jump under the finger.
  */
 internal data class WheelDrag(val base: Double, val dragPx: Float) {

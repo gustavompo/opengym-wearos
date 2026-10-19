@@ -5,7 +5,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * M7.2: the drag wheel's arithmetic and its release rule, as plain JVM tests.
+ * the drag wheel's arithmetic and its release rule, as plain JVM tests.
  *
  * Every one of these drives the **same** functions the composable calls — [wheelSteps],
  * [wheelWeightKg], [wheelReps] and [wheelGesture] — because the two things that can silently go
@@ -91,7 +91,7 @@ class ExercisePageWheelTest {
 
   /**
    * The release rule, driven through [wheelGesture] itself: a four-row drag commits **one**
-   * absolute value, the final one, and nothing else (plan §2.3, §2.6).
+   * absolute value, the final one, and nothing else.
    */
   @Test
   fun aMultiRowDragCommitsExactlyOneAbsoluteValue() {
@@ -167,7 +167,7 @@ class ExercisePageWheelTest {
   }
 
   /**
-   * A `state` that arrives mid-drag must not re-base the wheel (plan §2.6): the drag is measured
+   * A `state` that arrives mid-drag must not re-base the wheel: the drag is measured
    * from the value on screen when the finger landed, so [wheelGesture]'s `base` is read once, at
    * the start, and never again.
    */
@@ -196,7 +196,7 @@ class ExercisePageWheelTest {
   }
 
   /**
-   * U2a (haptics): [wheelGesture] reports the whole-step count after every drag event — 0 at drag
+   *  (haptics): [wheelGesture] reports the whole-step count after every drag event — 0 at drag
    * start, then the accumulated steps — so the screen can fire one CLOCK_TICK per step crossed,
    * and absolutely not per pixel.
    */

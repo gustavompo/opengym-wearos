@@ -34,8 +34,8 @@ import org.junit.runner.RunWith
  * `.wear`) installs and runs, and that the navigation skeleton moves between its two destinations
  * on repository state rather than on a button's own state.
  *
- * **The intent carries `transport=fake`, and it has to.** Since M3.4 the default for a plain launch
- * is [TransportKind.DATALAYER] (`docs/notes/12-datalayer-decisions.md` §6), so an activity started
+ * **The intent carries `transport=fake`, and it has to.** Since the default for a plain launch
+ * is [TransportKind.DATALAYER], so an activity started
  * with no extras builds a `TransportWorkoutRepository` against a phone that does not exist. The
  * assertions below are about `FakeWorkoutRepository`'s content ("Lat Pulldown", "Set 1/4"), so
  * without the override they would be reading the Data Layer's "phone not connected" screen.
@@ -81,7 +81,7 @@ class MainActivityLaunchTest {
   }
 
   /**
-   * M2.7 through the real `WearApp`: the chevron state comes from `WorkoutState.exerciseIndex` /
+   *  Delivered through the real `WearApp`: the chevron state comes from `WorkoutState.exerciseIndex` /
    * `exerciseCount` (projected from the repository), not from the screen's own defaults.
    *
    * `canGoPrevious` / `canGoNext` are *asserted*, never clicked while false: Compose removes the
@@ -89,8 +89,8 @@ class MainActivityLaunchTest {
    */
   @Test
   fun theChevronsAreGreyedOutAtTheFirstAndLastExercise() {
-    // First of four. M7.3 changed this one line: `‹` is no longer dead on the first exercise — plan
-    // §2.4 rule 4 makes it open the workout page — so it is enabled and this test asserts what it now
+    // First of four. This change made one line matter: `‹` is no longer dead on the first
+    // exercise — it opens the workout page — so it is enabled, and this test asserts what it now
     // does rather than that it is greyed. `›` is unchanged.
     composeTestRule.onNodeWithText("Lat Pulldown").assertIsDisplayed()
     composeTestRule.onNodeWithTag(EXERCISE_PAGE_PREV_TAG).assertIsEnabled()
@@ -99,7 +99,7 @@ class MainActivityLaunchTest {
     composeTestRule.onNodeWithTag(EXERCISE_PAGE_PREV_TAG).performClick()
     composeTestRule.onNodeWithTag(WORKOUT_PAGE_TAG).assertIsDisplayed()
     composeTestRule.onNodeWithText("Full Body A").assertIsDisplayed()
-    // Back to the exercise page by tapping the row that is already current (plan §2.4 rule 6: that tap
+    // Back to the exercise page by tapping the row that is already current (rule 6: that tap
     // needs no command), *not* with BACK — BACK from the list is what finishes the activity.
     composeTestRule.onNodeWithTag(workoutRowTag(0)).performClick()
     composeTestRule.onNodeWithText("Lat Pulldown").assertIsDisplayed()

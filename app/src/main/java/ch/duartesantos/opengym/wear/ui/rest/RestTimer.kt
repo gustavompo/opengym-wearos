@@ -51,10 +51,10 @@ import ch.duartesantos.opengym.wear.ui.safeWidth
 import java.util.Locale
 
 /*
- * M2.5 - the rest timer.
+ * the rest timer.
  *
  * Geometry comes from `references/rest-period-timer.png`, measured with
- * `android/build/evidence/measure-rest.py` (see docs/notes/05-rest-timer-evidence.md). That crop is
+ * `android/build/evidence/measure-rest.py`. That crop is
  * 321x343 px with a watch disc of diameter 305 px, so every constant below is a fraction of the
  * *display width*: `149f / 305f` means "149 of the reference display's 305 px". The same fraction is
  * then multiplied by our width in dp, so the reference's px -> dp conversion is applied exactly
@@ -79,7 +79,7 @@ private const val REF_DISPLAY_PX = 305f
 private const val F_RING_RADIUS = 149f / REF_DISPLAY_PX
 
 /**
- * Stroke as a fraction of the ring's *radius*: `docs/notes/01-rest-ring-semantics.md` says 0.076
+ * Stroke as a fraction of the ring's *radius*: `` says 0.076
  * (this crop measures 0.0738, notes 01 measure 0.0765). "roughly 1/6 of the radius" - the figure in
  * the task brief - is 0.167 and would be 2.3x the reference; the reference does not contain it.
  */
@@ -106,7 +106,7 @@ private const val F_FONT_SKIP = (17f / REF_DISPLAY_PX) / CAP_TO_EM
  * -112 px) is not rendered: WorkoutState carries no heart rate or calorie field and inventing one is
  * outside this task's file scope. That is why this block sits below the disc centre.
  *
- * U2a (Gus: "the 'next: exercise-name' is also hitting the sides and being cut... move the number
+ *  (Gus: "the 'next: exercise-name' is also hitting the sides and being cut... move the number
  * counter a bit up... make this label a 2-line label"): the countdown moves up -62 -> -75 and the
  * `Next:` block moves up -13 -> -32 so its second line clears the `Set` line below, then takes two
  * lines (see [REST_NEXT_MAX_LINES]). Both values stay negative (above the ring centre), inside the
@@ -118,7 +118,7 @@ private const val F_DY_SET = 10f / REF_DISPLAY_PX
 private const val F_DY_PILLS = 55f / REF_DISPLAY_PX
 private const val F_DY_SKIP = 111.5f / REF_DISPLAY_PX
 
-/** U2a: `Next: <name>` wraps to at most two lines (the user asked for the two-line label). */
+/** `Next: <name>` wraps to at most two lines (the user asked for the two-line label). */
 private const val REST_NEXT_MAX_LINES = 2
 
 /** Pills: measured 77 x 48 px stadiums, 24 px apart, centres 51 px either side of the ring centre. */
@@ -134,7 +134,7 @@ const val REST_ADJUST_SECONDS: Int = 15
 
 /**
  * The arc. Measured core pixel `rgb(29,130,234)` = `#1D82EA`, which is now the theme's
- * [OpenGymBlue]: M2.2 corrected that token away from the earlier transcription's `#2196F3`, so the
+ * [OpenGymBlue]: corrected that token away from the earlier transcription's `#2196F3`, so the
  * screen no longer needs its own copy. Notes 01's arguably-closer standard value `#1E88E5` is not
  * what the reference file contains.
  *
@@ -144,7 +144,7 @@ private val RingBlue = OpenGymBlue
 
 /**
  * The pills' fill, before: measured `rgb(28,28,30)` = `#1C1C1E`, the same dark neutral the spinner
- * cards and the chevrons used — and the reason the user could not see where a button ended. U2a
+ * cards and the chevrons used — and the reason the user could not see where a button ended.
  * moves the pills to the palette's button rung, [OpenGymSurfaceHigh], with an [OpenGymOutline]
  * edge (same treatment as the exercise page's chevrons).
  */
@@ -163,13 +163,18 @@ const val REST_TIMER_SKIP_TAG: String = "rest_timer.skip"
  * The rest timer: a depleting progress ring around the whole face, the countdown inside it, the
  * upcoming set under that, and three controls at the bottom.
  *
- * Ring semantics are `docs/notes/01-rest-ring-semantics.md`, decided by pixel measurement and not
+ * Ring semantics are ``, decided by pixel measurement and not
  * revisited here: one colour, **no track**; the blue arc is the **remaining** time and therefore
  * **empties**; rounded caps. U3: the arc is eaten from **one** end only - its right-hand end
  * retreats counterclockwise like a reverse clock while the left-hand end stays fixed at clock
- * 7:30 - see [restArcAngles]. (It used to shrink from both ends, meeting at 12 o'clock.)
+ * 184 - see [restArcAngles]. (It used to shrink from both ends, meeting at 12 o'clock.)
  *
- * M2.8's cues live in [RestSoundController], driven from the state's remaining seconds, so the tick
+ * U4: the ring no longer closes. Even at a full rest it leaves a small opening at the **bottom**,
+ * centred on clock 180 (6 o'clock) and [REST_ARC_GAP_DEGREES] wide, so no ink is ever drawn in the
+ * bottom few degrees of the circle. The fixed end therefore sits at clock 184, not at the clock 225
+ * that notes 01 measured off the reference screenshot - see [REST_ARC_START_ANGLE].
+ *
+ * s cues live in [RestSoundController], driven from the state's remaining seconds, so the tick
  * and beep schedule follows the repository's clock - the one with the injected `TimeSource` and
  * `CoroutineScope` - rather than a second clock inside the UI.
  *
@@ -190,7 +195,7 @@ fun RestTimer(
   val sink = toneSink ?: deviceSink
   val sound = remember(sink) { RestSoundController(sink) }
 
-  // U2a: one CLOCK_TICK per pill / Skip press, gated on the system haptics setting.
+  // one CLOCK_TICK per pill / Skip press, gated on the system haptics setting.
   val tick = rememberHapticTick()
 
   // Keyed on the countdown, so every second the repository publishes reaches the scheduler.
@@ -218,9 +223,9 @@ fun RestTimer(
         modifier = Modifier.offsetY(metrics.countdownOffset).testTag(REST_TIMER_COUNTDOWN_TAG),
       )
 
-      // U2a: the two-line `Next:` label, per-line chord-capped — the fix for "the next line hits
+      // the two-line `Next:` label, per-line chord-capped — the fix for "the next line hits
       // the sides". Before, one 380 px line ran to both bezel edges (measured: clearance +0.0 px,
-      // semantic bounds [0,191][454,225], docs/notes/31 §2b.4). Each line now gets its own chord.
+      // semantic bounds [0,191][454,225], b.4). Each line now gets its own chord.
       ChordWrappedText(
         text = "Next: ${state.exerciseName}",
         style = metrics.detailStyle,
@@ -313,29 +318,56 @@ internal fun formatUpcomingSet(state: WorkoutState): String =
 internal data class RestArcAngles(val startAngle: Float, val sweepAngle: Float)
 
 /**
- * Compose angle of the arc's **fixed** end: 135 degrees = clock 7:30.
+ * The permanent opening at the bottom of the ring, in degrees, centred on clock 180 (6 o'clock).
  *
- * Notes 01 measured the reference's left cap centre at clock 224.98 degrees and its gap centre at
- * 178.0 (5.93 o'clock) at 89 s remaining. A one-sided ring whose *right-hand* cap retreats
- * counterclockwise is pinned at `178.0 - 94.0/2 = 131.0` for the moving cap and
- * `178.0 + 94.0/2 = 225.0` for the fixed one. 225.0 clock = 135 Compose, which reproduces the
- * reference's left cap to 0.02 degrees; the previous symmetric `180(1-f) + 90` formula renders the
- * same moment 2 degrees off (caps at 227.0/133.0, gap centre 180.0).
+ * The arc stops [REST_ARC_GAP_DEGREES] short of closing even at a full rest, so the bottom of the
+ * circle is never filled. 8 degrees is the value chosen here: Gus asked for a few degrees and never
+ * named a number, because his sentence was cut off after "considering 180 degrees is the very
+ * bottom...". Changing this one constant is the whole of the gap's size.
  */
-internal const val REST_ARC_START_ANGLE: Float = 135f
+internal const val REST_ARC_GAP_DEGREES: Float = 8f
+
+/**
+ * Compose angle of the arc's **fixed** end: 94 degrees = clock 184, just past the bottom on the
+ * left-hand side, i.e. `180 + REST_ARC_GAP_DEGREES / 2` in clock angles.
+ *
+ * **This overrides the reference screenshot, deliberately.** Notes 01 measured the reference's left
+ * cap centre at clock 224.98 and its gap centre at 178.0 (5.93 o'clock) at 89 s remaining, and note
+ * 33 pinned the fixed cap to 225.0 clock = 135 Compose to reproduce that frame to 0.02 degrees -
+ * the reference closes the ring at the bottom-left, so its "gap" is zero at a full rest and its
+ * two ends sit at 7:30. Gus has now asked for the opposite: a small gap at the **bottom** that is
+ * always there. With the opening centred on 180 the fixed end is forced to `180 + 8/2 = 184` clock
+ * = 94 Compose. The reference is not "corrected" back here; it is overridden, and the 41 degree
+ * difference between the two is the point.
+ */
+internal const val REST_ARC_START_ANGLE: Float = 94f
+
+/**
+ * Sweep of a full rest: a whole turn less the bottom opening, so `sweep(f) = this * f`.
+ *
+ * Reducing the budget to 352 degrees (rather than subtracting 8 from a `360 * f` sweep) keeps the
+ * arc **proportional** to the remaining time, so the arc still reaches zero at the same fill the
+ * circle used to, and `restArcIsDrawable` keeps describing the same last half second. The cost is
+ * that the moving cap retreats at `352/T` deg/s instead of `360/T` - 2.93 deg/s rather than 3.00 on
+ * a 120 s rest, a 2.2% difference that is below what the frame analysis resolves.
+ */
+internal const val REST_ARC_SWEEP_DEGREES: Float = 360f - REST_ARC_GAP_DEGREES
 
 /**
  * The arc angles for a remaining fraction [fill] (1 at the start of the rest, 0 at the beep).
  *
  * Exactly one endpoint moves: the right-hand one, retreating counterclockwise - a reverse clock -
- * as [fill] falls. At [fill] `f` the moving cap sits at Compose `135 + 360f`, i.e. clock
- * `225 + 360f`, so the sweep stays linear in [fill] and therefore in elapsed rest time. The absolute
+ * as [fill] falls. At [fill] `f` the moving cap sits at Compose `94 + 352f`, i.e. clock
+ * `184 + 352f`, so the sweep stays linear in [fill] and therefore in elapsed rest time. The absolute
  * independence of [startAngle] from [fill] is what makes the ring one-sided, and
  * `RestTimerArcTest` fails if the symmetric `180(1-f) + 90` term comes back.
+ *
+ * At `f = 1` the two ends are [REST_ARC_GAP_DEGREES] apart, straddling clock 180 (176 and 184); as
+ * `f` falls the moving end retreats counterclockwise and the opening only widens.
  */
 internal fun restArcAngles(fill: Float): RestArcAngles {
   val f = fill.coerceIn(0f, 1f)
-  return RestArcAngles(startAngle = REST_ARC_START_ANGLE, sweepAngle = 360f * f)
+  return RestArcAngles(startAngle = REST_ARC_START_ANGLE, sweepAngle = REST_ARC_SWEEP_DEGREES * f)
 }
 
 /**
@@ -353,10 +385,10 @@ internal fun restArcIsDrawable(fill: Float): Boolean = fill > MIN_DRAWABLE_FRACT
 /**
  * The arc: the **remaining** time, eaten from its right-hand end only.
  *
- * One endpoint is fixed at [REST_ARC_START_ANGLE] (clock 7:30, the reference's measured left cap
- * centre); the other retreats counterclockwise, so the arc is not eaten from both ends toward 12
- * o'clock. At the reference moment (89 s left of 2:00, a 266.0 degree arc) the gap is centred on
- * clock 178.0 = 5.93 o'clock, the reference's own measurement.
+ * One endpoint is fixed at [REST_ARC_START_ANGLE] (clock 184, just left of the bottom); the other
+ * retreats counterclockwise, so the arc is not eaten from both ends toward 12 o'clock. At a full
+ * rest the two ends straddle clock 180 with [REST_ARC_GAP_DEGREES] of empty circle between them, so
+ * the bottom of the ring is never drawn.
  *
  * [Size] and [Offset] are given explicitly because `drawArc`'s stroke straddles the path it is given,
  * and the no-argument overload would inscribe that path in the full canvas, pushing half the stroke
@@ -409,7 +441,7 @@ private class RestMetrics(unit: Dp, typography: Typography) {
   val pillBorder = unit * F_PILL_BORDER
 
   /*
-   * U2a: the `Next:` label's per-line chords. The block's centre is offset by [nextOffset]; each
+   * the `Next:` label's per-line chords. The block's centre is offset by [nextOffset]; each
    * line's cap is the chord at that line's own box top (`detailLineHeight` = the tight line
    * height) — the guaranteed safe bound, since glyph ink never extends above the line box. Line 2
    * sits lower, so it is capped wider.

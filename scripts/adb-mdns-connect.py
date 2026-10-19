@@ -2,8 +2,7 @@
 
 The watch advertises a service instance of `_adb-tls-connect._tcp.local` with the
 current ephemeral connect port in its SRV record. On this rig the Galaxy Watch 5 Pro
-answers *unicast* mDNS queries only (multicast discovery — `adb mdns services` —
-never sees it, see `docs/notes/24-wireless-adb.md`), so this sends the query
+answers *unicast* mDNS queries only (multicast discovery — `adb mdns services` — never sees it), so this sends the query
 directly to the watch's IP. That is one UDP round trip instead of scanning ~28 000
 TCP ports. RFC 6762 §5.1/§6.7: a query sent to a specific address with the
 unicast-response (QU) bit set.

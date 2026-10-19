@@ -24,7 +24,7 @@ import kotlin.math.roundToLong
  * nearest round pound to 0.5 kg (0.5 kg = 1.10 lb), and exactly two cells of openGym's own lb
  * lattice. It is deliberately finer than openGym's own set-row stepper (5 lb / 10 lb heavy,
  * `lib/exercises.js:254`) because it is a watch spin control, not the phone's row control — see
- * notes 36 §3 for the alternatives and why they were not taken.
+ * notes 36 for the alternatives and why they were not taken.
  */
 enum class WeightUnit(
   /** What the `Kg` / `Reps` label row and the crown's accessibility description say. */

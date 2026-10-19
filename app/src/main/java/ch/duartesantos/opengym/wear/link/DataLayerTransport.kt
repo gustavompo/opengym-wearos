@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
- * The production [Transport]: the same frames as `docs/protocol.md` over the Wearable Data Layer.
+ * The production [Transport]: the same frames as `` over the Wearable Data Layer.
  *
  * **This is a carrier swap, not a second protocol.** It knows nothing about JSON, `rev`, ids or
  * command names; those stay in [WireProtocol] and [TransportWorkoutRepository], exactly as they do
@@ -32,7 +32,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  *
  * Everything the Data Layer actually does is behind [DataLayerClient], which is where the reason for
  * that split lives: the Data Layer cannot be exercised on this machine's emulators
- * (`docs/notes/12-datalayer-decisions.md` §7), so node selection, disconnection and recovery are
+ * so node selection, disconnection and recovery are
  * tested against a fake and this class is the only untested part.
  *
  * Disconnect and reconnect are **first-class events**, not error paths:
@@ -40,14 +40,14 @@ import kotlinx.coroutines.withTimeoutOrNull
  *    [ConnectionState.Connected] again when one is;
  *  - a different node is a *different link*, so while a link is already live the transition passes
  *    through [ConnectionState.Connecting] — that is what makes [TransportWorkoutRepository] re-send
- *    `hello` and get the new phone's `state` (`docs/protocol.md` §5.2: a new process may restart
+ *  `hello` and get the new phone's `state` (``: a new process may restart
  *    `rev` at 1);
  *  - nothing here clears anything. State retention lives one level up: the repository keeps its last
- *    accepted frame, so a dropped phone does not blank the watch (`12-datalayer-decisions.md` §2).
+ *  accepted frame, so a dropped phone does not blank the watch.
  *
  * Delivery is best-effort in both directions, like `MessageClient` itself: [SendOutcome.Delivered]
  * means "handed to the Data Layer", not "the phone processed it". Retries, ids and the bounded queue
- * are the repository's job (`docs/protocol.md` §5.3).
+ * are the repository's job.
  *
  * @param client the Data Layer seam; [WearableDataLayerClient] in production, a fake in tests.
  * @param nodeRescanIntervalMillis how often to re-query the node set when nothing signals a change.
@@ -115,7 +115,7 @@ class DataLayerTransport(
       scope.launch {
         client.incoming.collect(::onMessage)
       }
-    // §1a's non-obvious half, and the one the hardware run proved is required: a process that
+    // a's non-obvious half, and the one the hardware run proved is required: a process that
     // starts **after** the phone published gets no change event for that write, so waiting for one
     // renders nothing until the phone happens to publish again. The item is on the watch already;
     // it is read here rather than waited for. `onDataChanged` cannot cover this case at all.
@@ -181,7 +181,7 @@ class DataLayerTransport(
           }
           state.value = ConnectionState.Connected
           // A node appearing is also "someone may have written while we were not looking", and the
-          // reason the item is the carrier of record (§1a): it is the only carrier that still has
+          // reason the item is the carrier of record: it is the only carrier that still has
           // the frame after the writer went away. Read after `Connected` so the `hello` the
           // repository sends on that transition is not delayed by a store query.
           readStoredFrame()
@@ -193,7 +193,7 @@ class DataLayerTransport(
   }
 
   private fun onMessage(message: DataLayerMessage) {
-    // §1: one path for everything. Another path is either a different feature or noise; either way
+    // one path for everything. Another path is either a different feature or noise; either way
     // it is not a frame, and dropping it must not disturb the link.
     if (message.path != DataLayerContract.MESSAGE_PATH) return
     val text = decodeStrictUtf8(message.data) ?: return
@@ -206,7 +206,7 @@ class DataLayerTransport(
    * exactly the same route as one delivered as a change event or as a message: same path rule, same
    * strict decode, same `rev` gate one level up.
    *
-   * A duplicate is not a problem and is not treated as one (§1a). The same frame arrives here at
+   * A duplicate is not a problem and is not treated as one. The same frame arrives here at
    * startup, again on every new node, and possibly again as a message and as a change event; the
    * repository's high-water mark makes every copy after the first a no-op.
    */
@@ -232,7 +232,7 @@ class DataLayerTransport(
  * UTF-8 decode that reports rather than replaces.
  *
  * A `state` frame that arrives as mangled bytes is dropped, and a dropped frame must never take the
- * link down (`docs/protocol.md` §2). Decoding leniently would turn garbage into replacement
+ * link down. Decoding leniently would turn garbage into replacement
  * characters and hand [WireProtocol] a string that is merely *invalid JSON* instead of *not text* —
  * the same outcome by a longer route. Returns null when the bytes are not UTF-8.
  */

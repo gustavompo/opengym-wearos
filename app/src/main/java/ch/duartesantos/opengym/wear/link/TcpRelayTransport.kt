@@ -25,13 +25,12 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
- * Newline-delimited JSON over a TCP connection to the phone, which listens
- * (`docs/protocol.md` §7).
+ * Newline-delimited JSON over a TCP connection to the phone, which listens on the configured port.
  *
  * **This is a development and CI transport, not the production one.** The production path is the
  * Wearable Data Layer, because only a manifest-registered Android entry point (`WearableListenerService`)
- * gets the phone's process unfrozen when the user has pocketed it — see `docs/plan.md` §1.5 and
- * `docs/notes/02-webview-background-liveness.md`. A raw socket is also owned by a frozen process and
+ * gets the phone's process unfrozen when the user has pocketed it — and
+ * ``. A raw socket is also owned by a frozen process and
  * receives nothing. The TCP relay exists because the Data Layer cannot be exercised between two
  * emulators on this machine without Google-account enrolment, and because a real socket can be
  * tested against a real server in a JVM unit test, which is worth more than a mock.
@@ -183,7 +182,7 @@ class TcpRelayTransport(
   }
 
   companion object {
-    /** 250 ms doubling to a 10 s cap. Matches `docs/protocol.md` §7. */
+    /** 250 ms doubling to a 10 s cap. Matches ``. */
     val DEFAULT_BACKOFF_MILLIS: List<Long> = listOf(250L, 500L, 1_000L, 2_000L, 4_000L, 8_000L, 10_000L)
 
     const val CONNECT_TIMEOUT_MILLIS: Int = 5_000

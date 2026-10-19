@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 import kotlin.math.abs
 
 /**
- * V1, on the device: the `Kg` / `Reps` labels are read back from the **rendered pixels**, so this
+ * on the device: the `Kg` / `Reps` labels are read back from the **rendered pixels**, so this
  * fails if the colour is right in the Kotlin and wrong on the panel.
  *
  * Each label node is captured with `captureToImage` and its pixels counted against the two
@@ -40,7 +40,7 @@ import kotlin.math.abs
  * the other", which is exactly the claim the user made.
  *
  * The independent, human-checkable version of this evidence — `adb screencap` + PIL on the real
- * framebuffer, both states — is in `docs/notes/35-selection-colour-findings.md` §4.
+ * framebuffer, both states.
  */
 @RunWith(AndroidJUnit4::class)
 class ExercisePageSelectionColourTest {

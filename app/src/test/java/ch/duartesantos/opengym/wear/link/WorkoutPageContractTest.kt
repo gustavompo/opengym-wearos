@@ -12,11 +12,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * M7.1/M7.3 at the level the contract is written at: a `state` frame in, the workout page's list out,
+ * / at the level the contract is written at: a `state` frame in, the workout page's list out,
  * and a row tap out as exactly one command whose wait always ends.
  *
- * Contract: `docs/notes/19-workout-page-wheel-plan.md` §2.1 (the list), §2.2 (`selectExercise`) and
- * §2.4 rule 6 (the pending row). Every rule in §2.1 has a test here, named after the rule.
+ * Contract: `` (the list), (`selectExercise`) and
+ *  rule 6 (the pending row). Every rule in has a test here, named after the rule.
  */
 class WorkoutPageContractTest {
 
@@ -41,7 +41,7 @@ class WorkoutPageContractTest {
   private fun ack(id: String, result: AckResult, reason: String? = null, rev: Long = 99L) =
     WireProtocol.encode(AckFrame(id = id, result = result, reason = reason, rev = rev, sentAtMillis = 0L))
 
-  // --- §2.1: the list ---------------------------------------------------------------------------
+  // the list ---------------------------------------------------------------------------
 
   /** Rule 1 and rule 2: present, in order, and `entries[i].index == i`. */
   @Test
@@ -188,7 +188,7 @@ class WorkoutPageContractTest {
     assertEquals(42L, repository.observeWorkout().value.elapsedSeconds(1_791_665_042_000L))
   }
 
-  // --- §2.2 / §2.4 rule 6: the tap --------------------------------------------------------------
+  // / rule 6: the tap --------------------------------------------------------------
 
   @Test
   fun `selectExercise sends exactly one absolute frame, pending, and the matching state ends the wait`() = runTest {
@@ -277,7 +277,7 @@ class WorkoutPageContractTest {
     val applied = commands(transport).single().id
     transport.emitIncoming(ack(applied, AckResult.APPLIED))
     runCurrent()
-    // §2.2 guarantees the matching state; releasing here would switch the screen before it arrives.
+    //  guarantees the matching state; releasing here would switch the screen before it arrives.
     assertEquals(ExerciseSelection.Pending(2), repository.observeExerciseSelection().value)
 
     // A replay answered `duplicate` publishes nothing, so it is the end of the road for the row.

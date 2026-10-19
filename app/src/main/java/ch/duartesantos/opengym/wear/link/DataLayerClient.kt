@@ -2,13 +2,13 @@ package ch.duartesantos.opengym.wear.link
 
 import kotlinx.coroutines.flow.Flow
 
-/** The fixed names both sides agree on. `docs/notes/12-datalayer-decisions.md` §1. */
+/** The fixed names both sides agree on. ``. */
 object DataLayerContract {
 
   /**
    * The single message path, used for every frame in **both** directions. Routing by frame `type`
    * rather than by path keeps this side trivially symmetric with the TCP relay and leaves no second
-   * place for the two ends to disagree (`12-datalayer-decisions.md` §1).
+   * place for the two ends to disagree.
    */
   const val MESSAGE_PATH: String = "/opengym/wear"
 
@@ -32,7 +32,7 @@ data class PhoneNode(val id: String, val displayName: String? = null, val nearby
  * One payload that arrived from a node.
  *
  * The payload is raw bytes because that is what `MessageClient` carries: one discrete byte array per
- * message, so unlike TCP there is **no newline framing** to strip (`12-datalayer-decisions.md` §1).
+ * message, so unlike TCP there is **no newline framing** to strip.
  * One message is exactly one `WireProtocol` frame.
  */
 class DataLayerMessage(val nodeId: String, val path: String, val data: ByteArray) {
@@ -58,7 +58,7 @@ class DataLayerMessage(val nodeId: String, val path: String, val data: ByteArray
  * disconnect, retaining state through it, routing, rejecting — lives in [DataLayerTransport] and
  * [TransportWorkoutRepository], above this interface. That split is not decoration: the Data Layer
  * **cannot be exercised on this machine's emulators** (neither has a Google account, so every call
- * fails with `TARGET_NODE_NOT_CONNECTED` — `docs/notes/12-datalayer-decisions.md` §7), so a fake
+ * fails with `TARGET_NODE_NOT_CONNECTED` — ``), so a fake
  * implementation of this interface is the only way any of that logic is tested at all.
  *
  * Implementations must not throw. A missing phone, missing Play services, or a refused send is a
@@ -94,11 +94,11 @@ interface DataLayerClient {
    * [incoming] carries change events, and a change event only exists for a write that happened while
    * the Data Layer was watching the path. A watch process that starts *after* the phone published
    * therefore never sees one, and renders nothing forever from the item that is sitting right there
-   * in the store (`docs/notes/12-datalayer-decisions.md` §1a, `11a-device-handoff-shepherd.md` §4).
+   * in the store.
    * So the stored value has to be read explicitly — at startup, and again when a node connects.
    *
    * Same no-throw contract as [send]: no item, no Play services, no permission, a closed buffer all
-   * answer null. Duplicated delivery is harmless, which is what lets both carriers exist (§1a: the
+   * answer null. Duplicated delivery is harmless, which is what lets both carriers exist (a: the
    * `rev` high-water mark in `TransportWorkoutRepository` makes a repeat frame a no-op).
    */
   suspend fun readItem(path: String): DataLayerMessage?

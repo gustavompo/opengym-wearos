@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.material3.ColorScheme
 
 /*
- * Palette transcribed from docs/research/00-ux-references.md (the Hevy Wear OS screenshots) and
+ * Palette transcribed from (the Hevy Wear OS screenshots) and
  * then *corrected by pixel measurement* of `references/exercise-page.png` and
  * `references/rest-period-timer.png`. The research doc's two grey and its blue were transcriptions,
  * not measurements, and all three were wrong:
@@ -15,8 +15,8 @@ import androidx.wear.compose.material3.ColorScheme
  *   raised grey    #333333      #1C1C1E            - the reference has ONE neutral, see below
  *
  * Whites (255,255,255) and text greys come through the reference unshifted, so these are not a
- * colour-profile artefact. See docs/notes/06-rest-timer-measurement.md section 5 and
- * docs/notes/07-integration.md.
+ * colour-profile artefact. See section 5 and
+ * 
  *
  * This is not a generated Material tonal palette. The reference design is "pure black background,
  * one blue accent, one dark neutral, white text" - so that is all that exists here. Anything a
@@ -29,7 +29,7 @@ import androidx.wear.compose.material3.ColorScheme
  * active row), [OpenGymSurfaceHigh] (`#2C2C2E`, a button - this is the one the user asked for) and
  * [OpenGymOutline] (`#38383A`, a border) - and **no hue was added**, because no state on any screen
  * is carried by colour alone. Reasoning, and the per-screen token mapping the screen agents must
- * use, is in `docs/notes/29-ui-foundation-findings.md`.
+ * use, is in ``.
  */
 
 /** Screen background. */
@@ -69,7 +69,7 @@ val OpenGymSurfaceRaised: Color = Color(0xFF242426)
  * the same step as no fill.
  *
  * `#2C2C2E` is the low end of the range the source app used for its secondary surface
- * (`docs/research/00-ux-references.md`: `#2C2C2C`-`#333333`), and it is the value directly above
+ * and it is the value directly above
  * [OpenGymSurface] in the same neutral family. It is a uniform **+16** on all three channels
  * (28,28,30 -> 44,44,46), which is the smallest step that is unambiguous on an OLED watch at 1x
  * while leaving white text the brightest thing on the screen. `#333336` (+23) is rejected: at that
@@ -125,7 +125,7 @@ internal val OpenGymColorScheme: ColorScheme =
     onSurface = OpenGymWhite,
     onSurfaceVariant = OpenGymMuted,
     outline = OpenGymMuted,
-    // The neutral border token, not the fill: `outlineVariant` is what Wear M3 draws a card's or a
+    // The neutral border token, not the fill: `outlineVariant` is what Wear draws a card's or a
     // divider's edge with, and `OpenGymSurfaceHigh` would make that edge a no-op on a filled card.
     outlineVariant = OpenGymOutline,
   )

@@ -12,8 +12,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The mirroring rules from `docs/protocol.md` §§3–6, over the [LoopbackTransport] fake — the
- * pluggable-transport half of M3.2's evidence.
+ * The mirroring rules from ``, over the [LoopbackTransport] fake — the
+ * pluggable-transport half of 's evidence.
  *
  * Virtual time (`runTest`) drives the tick and the ack sweep, so this is deterministic and instant.
  * The socket itself is proven separately, against a real `ServerSocket`, in
@@ -129,7 +129,7 @@ class TransportWorkoutRepositoryTest {
     runCurrent()
     assertEquals("A", repository.observeWorkout().value.exerciseName)
 
-    // Same rev, different content: §5.2 says discard, so a redelivered frame cannot flicker the UI.
+    // Same rev, different content: says discard, so a redelivered frame cannot flicker the UI.
     transport.emitIncoming(frame(5, "B"))
     runCurrent()
     assertEquals("A", repository.observeWorkout().value.exerciseName)
@@ -251,7 +251,7 @@ class TransportWorkoutRepositoryTest {
   }
 
   /**
-   * The behaviour that matters on real hardware, and the reason decision §2 calls disconnect a
+   * The behaviour that matters on real hardware, and the reason decision calls disconnect a
    * first-class event rather than an error path.
    *
    * On a real watch the phone is backgrounded and frozen constantly: the WebView is stopped, the app
@@ -314,7 +314,7 @@ class TransportWorkoutRepositoryTest {
     assertEquals(90, retained.restSecondsRemaining)
 
     // 30 s with no phone at all: the ring keeps counting, because `endsAt` is an absolute deadline
-    // and not a countdown the transport was supposed to deliver (`docs/protocol.md` §3.1).
+    // and not a countdown the transport was supposed to deliver.
     clock.advanceBy(30_000)
     advanceTimeBy(1_000)
     runCurrent()
@@ -337,7 +337,7 @@ class TransportWorkoutRepositoryTest {
     )
 
     // And the empty-state sentence is still the *link's* sentence, not a claim about the workout:
-    // if the watch had no workout at all it would say "Phone not connected" (decision §6), which is
+    // if the watch had no workout at all it would say "Phone not connected", which is
     // a different statement from the one this screen is making.
     assertEquals("Phone not connected", emptyWorkoutMessage(repository.observePhoneLink().value))
   }
@@ -469,7 +469,7 @@ class TransportWorkoutRepositoryTest {
       }
 
       val ids = commandFrames(transport).map { it.id }
-      // The same id every time — that is what lets the phone deduplicate a replay (§5.1).
+      // The same id every time — that is what lets the phone deduplicate a replay.
       assertEquals(setOf(ids.first()), ids.toSet())
       assertEquals(WireProtocol.MAX_COMMAND_ATTEMPTS, ids.size)
       assertEquals(0, repository.observeLinkStatus().value.pendingCommands)
@@ -508,9 +508,9 @@ class TransportWorkoutRepositoryTest {
   }
 
   /**
-   * `docs/protocol.md` §5.5. A refusal is not automatically final: `busy` means "the phone cannot
+   * ``. A refusal is not automatically final: `busy` means "the phone cannot
    * take it right now", which is what a frozen WebView with no workout-scoped foreground service
-   * produces (`12-datalayer-decisions.md` §4). The tap must survive that, under the same id.
+   * produces. The tap must survive that, under the same id.
    */
   @Test
   fun `a busy refusal keeps the command in flight and re-sends the same id`() = runTest {
@@ -538,7 +538,7 @@ class TransportWorkoutRepositoryTest {
     runCurrent()
     assertEquals("the retry carries the original id", listOf(id, id), commandFrames(transport).map { it.id })
 
-    // An unrecognised reason gets the same treatment on purpose (`docs/protocol.md` §5.5): asking
+    // An unrecognised reason gets the same treatment on purpose: asking
     // again is bounded, silently dropping the tap is not recoverable.
     transport.emitIncoming(
       WireProtocol.encode(

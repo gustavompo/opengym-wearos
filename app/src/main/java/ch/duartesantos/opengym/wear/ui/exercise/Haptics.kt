@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalView
 
 /*
- * U2a — the one haptics helper both screens use.
+ *  — the one haptics helper both screens use.
  *
  * The mechanism is chosen, not invented: `HapticFeedbackConstants.CLOCK_TICK` is the same tick the
  * system bezel emits on a rotary detent, so a watch that already ticks on lists, the settings

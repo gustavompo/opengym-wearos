@@ -66,16 +66,16 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /*
- * M7.3 — the workout page: every exercise in the session with its progress, the current one raised.
+ *  — the workout page: every exercise in the session with its progress, the current one raised.
  *
  * Geometry: every dimension below is a fraction of the *display width*, measured from
  * `references/workout-page.png` with `tools/workout_page_measure.py`. The script's raw output and the
- * constant-by-constant derivation are in `docs/notes/20-workout-page-findings.md` section 2. That
+ * constant-by-constant derivation are in `` section 2. That
  * reference's watch disc is 305 px — the same disc as `references/rest-period-timer.png`, which
  * `RestTimer.kt` measures against with the same `REF_DISPLAY_PX = 305f`.
  *
  *   card            264 x 89 px, corner radius ~32 px, side inset 21 px (border now the outline
- *                    token; the current row's fill the raised token — see 29 §3. The reference's
+ *  token; the current row's fill the raised token — see 29. The reference's
  *                    one measured neutral `#1C1C1E` is why the page itself and the non-current rows
  *                    keep `OpenGymSurface`/transparent-over-black)
  *   card padding    13 px from the card's left edge to the first ink
@@ -110,7 +110,7 @@ private const val F_CARD_BORDER = 1.96f / REF_DISPLAY_PX
 /*
  * The header's vertical placement on the round disc. The reference's own name band starts at y90 of
  * its 305 px disc (timer at y123, card top y192), which puts the header around the vertical middle;
- * U2b moves it up so the list — the page's focus — gets the space. The new top (y38) is the
+ *  moves it up so the list — the page's focus — gets the space. The new top (y38) is the
  * highest the name can sit without clipping at the bezel: measured with the real typeface, `Full Body A`
  * at cap 21 renders 118.7 dp on a 227 dp screen, and the chord at band-top fraction 38/305 is
  * 149.9 dp, minus the 8 dp per-side inset = 133.9 dp budget — so 38/305 is the first placement
@@ -155,15 +155,14 @@ fun workoutRowTag(index: Int): String = "workout_page.row.$index"
  * The workout page: the workout's name, the locally-derived elapsed timer, and every exercise in the
  * session with its `done/total` sets.
  *
- * Progress is sets only — no per-set ticks and no checkmarks (plan §0 decision 5). The current
+ * Progress is sets only — no per-set ticks and no checkmarks. The current
  * exercise is the filled card and rows whose sets are all done are dimmed. The exercise thumbnail,
  * the `(Machine)` subtitle and the reference's `♥`/`🔥` stat row are deliberately absent: openGym has
- * no source for either stat, and the first two are ~140 MB of media this page has no job for (§0
- * decision 2).
+ * no source for either stat, and the first two are ~140 MB of media this page has no job for ( * decision 2).
  *
  * The elapsed timer is derived **locally** from `startedAt` and the watch's own clock, so it keeps
  * moving with no phone traffic, and it is hidden entirely when the phone did not send a start
- * (§2.1 rule 5).
+ * .
  *
  * [onSelectRow] is called with the row's `index` — its position in the session, which is exactly the
  * value `selectExercise` takes. Getting back to the list is the BACK gesture, which lives above this
@@ -180,7 +179,7 @@ fun WorkoutPage(
   nowMillis: () -> Long = { System.currentTimeMillis() },
 ) {
   if (!state.isWorkoutActive) {
-    // Plan §2.4 rule 5: with no workout the chosen screen is forced to the exercise page, which owns
+    //  rule 5: with no workout the chosen screen is forced to the exercise page, which owns
     // `emptyWorkoutMessage(link)`. This guard exists so a stray call can never draw an empty list; it
     // is not a second empty state.
     Box(modifier = modifier.fillMaxSize().background(OpenGymBlack), contentAlignment = Alignment.Center) {
@@ -214,18 +213,15 @@ fun WorkoutPage(
   val listState = rememberLazyListState()
   val scrollScope = rememberCoroutineScope()
 
-  // The elapsed time is read from the watch's own clock against an absolute start, and ticks on the
-  // second boundary of that elapsed time rather than on a naive 1 s delay — so a late frame cannot
-  // make the display lag, and nothing is asked of the phone (plan §3).
-  var tickMillis by remember { mutableLongStateOf(nowMillis()) }
-  val startedAt = state.startedAtMillis
-  LaunchedEffect(startedAt) {
-    if (startedAt == null) return@LaunchedEffect
-    while (true) {
-      tickMillis = nowMillis()
-      delay(1_000L - Math.floorMod(tickMillis - startedAt, 1_000L))
-    }
-  }
+  // JANK FIX: the tick itself lives inside [WorkoutTimer] so that one second passing
+  // recomposes the timer `Text` and nothing else. When the tick state lived here, in the page body,
+  // every tick invalidated this composable and the whole `Column` below - header and list included -
+  // and Compose re-laid-out the page's text from `AndroidComposeView.dispatchDraw` (measured
+  // ~34 ms per tick on the benchmark build,). The page only needs to know whether the
+  // timer should exist at all, and that follows from the absolute start, not from the ticking clock:
+  // it is read once, from the same clock function, and answers null when the phone sent no start.
+  val startedAtMillis = state.startedAtMillis
+  val timerVisible = startedAtMillis != null && state.elapsedSeconds(nowMillis()) != null
 
   BoxWithConstraints(
     modifier =
@@ -251,7 +247,7 @@ fun WorkoutPage(
     val rows = state.listRows
     val currentIndex = rows.indexOfFirst { it.index == state.exerciseIndex }
 
-    // Opens centred on the current exercise (plan §3). Runs once per visit: the destination change in
+    // Opens centred on the current exercise. Runs once per visit: the destination change in
     // `WearApp` re-creates this page, and re-centring on every projection would fight the user's own
     // scrolling. The viewport's height is only known after the first layout pass, hence the flow.
     LaunchedEffect(Unit) {
@@ -266,7 +262,7 @@ fun WorkoutPage(
       Spacer(Modifier.height(metrics.headerTop))
 
       // Capped at the display's chord at this line's height: a long workout name ellipsises before
-      // it can run under the bezel (the defect U1 measured as 0.6 px past the arc, 29 §5.3).
+      // it can run under the bezel.
       Text(
         text = state.workoutName,
         style = metrics.workoutNameStyle,
@@ -287,26 +283,15 @@ fun WorkoutPage(
 
       // Hidden entirely — not shown as 00:00 — when the phone sent no `startedAt`, and while the
       // start is in the future (`elapsedSeconds` answers null for both).
-      val elapsed = state.elapsedSeconds(tickMillis)
       // With the timer hidden the list starts higher; the row capping below must know the real top.
-      val listTop = if (elapsed != null) metrics.listTop else metrics.listTopNoTimer
-      if (elapsed != null) {
-        Spacer(Modifier.height(metrics.gapNameTimer))
-        Text(
-          text = formatElapsed(elapsed),
-          style = metrics.timerStyle,
-          color = OpenGymMuted,
-          maxLines = 1,
-          textAlign = TextAlign.Center,
-          modifier =
-            Modifier
-              .testTag(WORKOUT_PAGE_TIMER_TAG)
-              .safeTextWidth(
-                screenWidth = displayWidth,
-                yFraction = metrics.timerCentreFraction,
-                inset = 8.dp,
-                bandHeight = metrics.timerLineHeight,
-              ),
+      val listTop = if (timerVisible) metrics.listTop else metrics.listTopNoTimer
+      if (timerVisible && startedAtMillis != null) {
+        WorkoutTimer(
+          state = state,
+          startedAtMillis = startedAtMillis,
+          metrics = metrics,
+          displayWidth = displayWidth,
+          nowMillis = nowMillis,
         )
       }
 
@@ -350,6 +335,49 @@ fun WorkoutPage(
   }
 }
 
+/**
+ * The elapsed timer, and the only composable on this page that reads the clock.
+ *
+ * The tick is isolated here on purpose: `tickMillis` is read only in this scope, so one
+ * second passing recomposes this `Text` and nothing above or below it. The tick lands on the second
+ * boundary of the elapsed time rather than on a naive 1 s delay, so a late frame cannot make the
+ * display drift.
+ */
+@Composable
+private fun WorkoutTimer(
+  state: WorkoutState,
+  startedAtMillis: Long,
+  metrics: WorkoutMetrics,
+  displayWidth: Dp,
+  nowMillis: () -> Long,
+) {
+  var tickMillis by remember { mutableLongStateOf(nowMillis()) }
+  LaunchedEffect(startedAtMillis) {
+    while (true) {
+      tickMillis = nowMillis()
+      delay(1_000L - Math.floorMod(tickMillis - startedAtMillis, 1_000L))
+    }
+  }
+  val elapsed = state.elapsedSeconds(tickMillis) ?: return
+  Spacer(Modifier.height(metrics.gapNameTimer))
+  Text(
+    text = formatElapsed(elapsed),
+    style = metrics.timerStyle,
+    color = OpenGymMuted,
+    maxLines = 1,
+    textAlign = TextAlign.Center,
+    modifier =
+      Modifier
+        .testTag(WORKOUT_PAGE_TIMER_TAG)
+        .safeTextWidth(
+          screenWidth = displayWidth,
+          yFraction = metrics.timerCentreFraction,
+          inset = 8.dp,
+          bandHeight = metrics.timerLineHeight,
+        ),
+  )
+}
+
 /** One exercise of the session: its name and its `n/N Sets` progress. */
 @Composable
 private fun ExerciseRow(
@@ -364,14 +392,14 @@ private fun ExerciseRow(
   val shape = RoundedCornerShape(metrics.cardRadius)
   val completed = row.setsTotal > 0 && row.setsDone >= row.setsTotal
 
-  // Palette (29 §3): the *current* row is the raised filled card, every other row is the same
+  // Palette: the *current* row is the raised filled card, every other row is the same
   // outline over black the exercise page already uses; the border is the outline token. The old
-  // #1C1C1E-on-#1C1C1E border was the measured "no visible edge" complaint (§1.2 here; 29 §5.1).
-  // A finished row's name stays muted ("completed rows dimmed", plan §0 decision 5) — no ticks.
+  // #1C1C1E-on-#1C1C1E border was the measured "no visible edge" complaint.
+  // A finished row's name stays muted — no ticks.
   val fill = if (isCurrent) OpenGymSurfaceRaised else Color.Transparent
   val nameColor =
     when {
-      // The one state the reference has no equivalent for. Plan §2.4 rule 6 requires the row to be
+      // The one state the reference has no equivalent for. rule 6 requires the row to be
       // *pending*, and a pending state the user cannot see is not a state. Blue is the theme's
       // existing signal colour and the only token that reads as "happening now". The pending row's
       // card is left at the outline treatment — it becomes the raised card when the state arrives.
@@ -464,7 +492,7 @@ internal fun formatElapsed(elapsedSeconds: Long): String {
  * (which is dropped) as well as the two text lines, so a row is airier than its content needs; it is
  * kept because it is the measurement, and it leaves the reference's generous touch target intact.
  * One consequence is recorded rather than hidden: with the header above it, the list shows about one
- * row at a time, so the page scrolls. See findings §2.
+ * row at a time, so the page scrolls.
  */
 private class WorkoutMetrics(unit: Dp, typography: Typography) {
   /** Font sizes are a fraction of the width in dp, which equals sp at the default font scale. */

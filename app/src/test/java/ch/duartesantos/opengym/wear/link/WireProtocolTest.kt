@@ -7,7 +7,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The contract from `docs/protocol.md`, checked at the level where it is defined.
+ * The contract from ``, checked at the level where it is defined.
  *
  * Decoding is total by design: a malformed or unknown frame must be ignored, never crash the link.
  * The "does it survive" cases below are the reason [WireProtocol.decode] returns null instead of

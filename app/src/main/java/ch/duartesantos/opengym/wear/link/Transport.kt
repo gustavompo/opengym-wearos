@@ -85,7 +85,7 @@ interface Transport {
  * repository later without copying code across source sets.
  *
  * It is a fake, and it is not evidence that the real transports work — see
- * `docs/notes/08-protocol-transport.md` for the real-socket test that is.
+ * `` for the real-socket test that is.
  */
 class LoopbackTransport(
   override val name: String = "loopback",
@@ -131,14 +131,14 @@ class LoopbackTransport(
 /**
  * The link's health, as the screens would want to show it. Kept separate from
  * [ch.duartesantos.opengym.wear.data.WorkoutState] so that "the phone is unreachable" and "no
- * workout is running" cannot be confused for one another (`docs/protocol.md` §6).
+ * workout is running" cannot be confused for one another.
  *
- * Nothing in the UI consumes this yet — M3 is plumbing, and the current screens render
+ * Nothing in the UI consumes this yet — is plumbing, and the current screens render
  * [ch.duartesantos.opengym.wear.data.WorkoutRepository] only.
  */
 data class LinkStatus(
   val connection: ConnectionState = ConnectionState.Disconnected,
-  /** False when the version intersection was empty (`docs/protocol.md` §2). */
+  /** False when the version intersection was empty. */
   val compatible: Boolean = true,
   val negotiatedVersion: Int? = null,
   /** `sentAt` of the newest accepted `state`, or null if none has ever arrived. */

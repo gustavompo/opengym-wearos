@@ -32,7 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * M7.2: the drag wheel, on the device, through the real touch pipeline.
+ * the drag wheel, on the device, through the real touch pipeline.
  *
  * These are real `MotionEvent`s dispatched at the card (Compose's input injection), so they exercise
  * the same `detectVerticalDragGestures` the finger does — not a direct call to the wheel's
@@ -41,19 +41,19 @@ import org.junit.runner.RunWith
  * What each test is for, and why it is not redundant:
  *  - a vertical drag moves the value **and** commits exactly one absolute command;
  *  - a drag that returns to its origin commits nothing at all;
- *  - a **horizontal** drag on a card changes nothing — the half of plan §2.5 this feature owns;
+ *  - a **horizontal** drag on a card changes nothing;
  *  - a horizontal drag starting on a card is still seen by a horizontal detector **above** the page,
- *    which is the mechanism the BACK gesture hangs off (§2.5: "the back gesture is horizontal and
- *    lives above the page, so it still sees drags the page did not consume");
+ *    which is the mechanism the BACK gesture hangs off: "the back gesture is horizontal and
+ *    lives above the page, so it still sees drags the page did not consume";
  *  - a `state` that arrives mid-drag does not move the digits, and the projection wins again when
- *    the finger lifts (§2.6).
+ *  the finger lifts.
  */
 @RunWith(AndroidJUnit4::class)
 class ExercisePageDragTest {
 
   @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
-  /** Pixels a horizontal detector above the page was given, for the §2.5 test. */
+  /** Pixels a horizontal detector above the page was given, for the test. */
   private var horizontalDragPx = 0f
 
   private fun show(withParentHorizontalDetector: Boolean = false): RecordingRepository {
@@ -62,7 +62,7 @@ class ExercisePageDragTest {
       OpenGymWearTheme {
         val state by repository.observeWorkout().collectAsState()
         // Stands in for the page above this one, where the swipe-right BACK gesture will live.
-        // Nothing on the card may consume a horizontal drag before this sees it (plan §2.5).
+        // Nothing on the card may consume a horizontal drag before this sees it.
         val pageModifier =
           if (withParentHorizontalDetector) {
             Modifier.fillMaxSize().pointerInput(Unit) {
@@ -183,7 +183,7 @@ class ExercisePageDragTest {
     // Two rows up: the preview is 51.0 while the finger is still down.
     rule.onNodeWithText("51.0").assertIsDisplayed()
 
-    // The phone pushes a different weight mid-drag. The dragged column must ignore it (§2.6).
+    // The phone pushes a different weight mid-drag. The dragged column must ignore it.
     repository.delegate.adjustWeight(+7.0)
     rule.waitForIdle()
     // The projection really did move — the state is 57.0 — and the dragged column is still showing
@@ -196,7 +196,7 @@ class ExercisePageDragTest {
     rule.waitForIdle()
 
     // One command, computed from the base the finger started on (50.0 + 2 x 0.5), not from the
-    // 57.0 that arrived mid-drag: the projection did not re-base the wheel (§2.6).
+    // 57.0 that arrived mid-drag: the projection did not re-base the wheel.
     assertEquals(listOf("setWeight(51.0)"), repository.commands)
     // The preview is gone, so the projection renders again. Here the fake has just applied the
     // commit, so the projection is the committed 51.0; against a transport-backed repository this
@@ -222,7 +222,7 @@ class ExercisePageDragTest {
 
   /**
    * The card's row height in px, measured from the node's own bounds and not assumed: the wheel's
-   * row is `cardHeight / 3` (plan §2.6), so this is the same number the implementation divides by.
+   * row is `cardHeight / 3`, so this is the same number the implementation divides by.
    */
   private fun rowHeightPx(tag: String): Float =
     rule.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.height / 3f
@@ -261,7 +261,7 @@ class ExercisePageDragTest {
  *
  * Recording is the point: a drag's *outcome* (the weight changed) is also what a stream of
  * `adjustWeight` deltas would produce against the fake, so the test has to assert the **shape** of
- * the commit — one absolute `setWeight`, and nothing else (plan §2.3, §2.6).
+ * the commit — one absolute `setWeight`, and nothing else.
  */
 private class RecordingRepository(
   initialWorkout: ActiveWorkout = ActiveWorkout.FullBodyA,
@@ -293,7 +293,7 @@ private class RecordingRepository(
     delegate.previousExercise()
   }
 
-  // M7.4 (merge): agent A extended `WorkoutRepository` with the workout page's tap while this file
+  //  (merge): agent A extended `WorkoutRepository` with the workout page's tap while this file
   // was being written in a separate tree, so these two members exist only here. Delegated exactly
   // like the rest, and recorded, so a test that ever exercises the wheel *and* the list still sees
   // the truth rather than a hole.

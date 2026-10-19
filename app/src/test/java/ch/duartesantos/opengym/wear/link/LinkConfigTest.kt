@@ -8,7 +8,7 @@ import org.junit.Test
 /**
  * Transport selection from intent extras.
  *
- * This is decision §6's contract in code, and the part of it that is easiest to get silently wrong:
+ * This is decision 's contract in code, and the part of it that is easiest to get silently wrong:
  * what a *plain* launch does. It is pure Kotlin — `fromArgs` takes three nullable values and an
  * `Intent` is unpacked by the caller — so it is testable here with no device and no Android.
  */
@@ -32,7 +32,7 @@ class LinkConfigTest {
    * The one the task called out. An unknown string is "no override", and no override is the
    * **production** path — a stale `adb am start` line from the TCP era must not silently drop the
    * user onto an in-memory fake workout that looks exactly like real data
-   * (`12-datalayer-decisions.md` §6).
+   * .
    */
   @Test
   fun `an unknown override does not silently become a fake`() {

@@ -28,9 +28,9 @@ object TestFrames {
     reps: Int = 8,
     previousWeightKg: Double? = null,
     previousReps: Int? = null,
-    /** M7.3: `active.start`, or null for "the phone did not say". */
+    /** `active.start`, or null for "the phone did not say". */
     startedAtMillis: Long? = null,
-    /** M7.3: the list rows, or null for a frame from a phone that does not send them. */
+    /** the list rows, or null for a frame from a phone that does not send them. */
     entries: List<WorkoutEntrySnapshot>? = null,
   ) =
     WorkoutSnapshot(
@@ -49,7 +49,7 @@ object TestFrames {
       entries = entries,
     )
 
-  /** One `workout.entries[]` row (M7.3, plan section 2.1). */
+  /** One `workout.entries[]` row. */
   fun entry(index: Int, name: String, setsDone: Int, setsTotal: Int) =
     WorkoutEntrySnapshot(index = index, name = name, setsDone = setsDone, setsTotal = setsTotal)
 
@@ -74,7 +74,7 @@ object TestFrames {
  *
  * This is the only way the Data Layer's *logic* can be tested on this machine: there is no paired
  * phone and no Google account, so a real client answers `TARGET_NODE_NOT_CONNECTED` for everything
- * (`docs/notes/12-datalayer-decisions.md` §7). Everything interesting — node selection, a node
+ * . Everything interesting — node selection, a node
  * disappearing, a node being replaced, a refused send, routing, buffering, retention across a
  * disconnect — is above this interface, so a fake is what proves it.
  *
@@ -111,7 +111,7 @@ class FakeDataLayerClient(
    * phone appearing or going. Deliberately not a public `var`: a Kotlin `var` named
    * `reachableNodes` generates a JVM setter `setReachableNodes(List)`, which clashes with that
    * function's own signature (the same class of trap as `Socket.getPort` shadowing a constructor
-   * parameter, `docs/notes/08-protocol-transport.md`).
+   * parameter, ``).
    */
   @Volatile private var nodes: List<PhoneNode> = reachable
 
@@ -192,7 +192,7 @@ class FakeDataLayerClient(
   /**
    * Puts a frame in the store, as the phone's `putDataItem` does. It does **not** emit anything:
    * an item that is already there when a process starts produces no change event, which is exactly
-   * the cold-start case (§1a). Use [emitFrame] for a change event.
+   * the cold-start case. Use [emitFrame] for a change event.
    */
   fun storeItem(
     text: String,

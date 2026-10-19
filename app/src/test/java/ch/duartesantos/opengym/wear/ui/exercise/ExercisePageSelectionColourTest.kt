@@ -8,7 +8,7 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 /**
- * V1: the `Kg` / `Reps` label colours are a pure function of the rotary target, so the colour a
+ * the `Kg` / `Reps` label colours are a pure function of the rotary target, so the colour a
  * user sees can never disagree with the column the crown is turning. These are the JVM half; the
  * instrumented [ExercisePageSelectionColourTest] reads the actual pixels.
  *

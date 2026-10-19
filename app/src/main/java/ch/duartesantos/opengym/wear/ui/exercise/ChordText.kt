@@ -20,14 +20,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.wear.compose.material3.Text
 
 /*
- * U2a — a label that wraps to up to two lines, each line capped at its OWN safe width.
+ *  — a label that wraps to up to two lines, each line capped at its OWN safe width.
  *
  * Why this exists: a round display's usable width is the circle's chord, and the chord grows as a
  * line moves DOWN the screen. For a two-line label (the exercise title, the rest page's
  * `Next: <name>`) the first line's chord is the binding constraint and the second line's is
  * wider — a single `widthIn(max = first line's chord)` under-serves the second line, and a single
  * `widthIn(max = second line's chord)` lets the first line run under the bezel (measured: the
- * 290 px line of "barbell incline bench press" clipped its top row, docs/notes/31 §5.4). So the
+ * 290 px line of "barbell incline bench press" clipped its top row,). So the
  * two lines get their own caps.
  *
  * The split uses the platform [`TextMeasurer`]: the full string is measured once under the FIRST

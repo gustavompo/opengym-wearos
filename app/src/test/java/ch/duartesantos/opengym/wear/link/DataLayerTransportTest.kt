@@ -15,7 +15,7 @@ import org.junit.Test
  * [DataLayerTransport] against a hand-driven [DataLayerClient].
  *
  * The premise of these tests: **the Data Layer itself cannot be exercised on this machine**
- * (`docs/notes/12-datalayer-decisions.md` §7), so the transport's contract is proven against a fake
+ * so the transport's contract is proven against a fake
  * and the GMS binding is reported as unverified. What is asserted here is real behaviour, not
  * "a method was called": which node is chosen, what happens when it goes away, where the bytes land,
  * and what is dropped.
@@ -100,7 +100,7 @@ class DataLayerTransportTest {
     assertEquals(ConnectionState.Connected, transport.connectionState.value)
 
     // The transition must pass through `Connecting`: that is what makes the repository re-send
-    // `hello` and pick up the new phone's state (`docs/protocol.md` §5.2 — a new phone process
+    // `hello` and pick up the new phone's state (`` — a new phone process
     // restarts `rev` at 1). A `Connected` that never leaves `Connected` is a no-op for a StateFlow
     // collector, so the repository would keep rendering the old phone's state forever.
     val firstConnected = seen.indexOf(ConnectionState.Connected)
@@ -233,17 +233,17 @@ class DataLayerTransportTest {
     assertTrue(received.isEmpty())
   }
 
-  // --- the stored item: the cold-start half (decision §1a) ----------------------------------------
+  // the stored item: the cold-start half ----------------------------------------
 
   /**
    * The case `onDataChanged` cannot cover, and the one the hardware run found: the phone published
    * **before this process existed**, so there is no change event to deliver — ever. The item is
    * sitting in the store, and reading it is the only way the watch sees the workout
-   * (`docs/notes/11a-device-handoff-shepherd.md` §4).
+   * .
    *
    * The frame legitimately arrives twice — once from the startup read, once from the read on the
    * first node selection — and that is asserted rather than tidied away: repeated delivery is what
-   * §1a trades for having two carriers at all, and the `rev` high-water mark is what makes it
+   * a trades for having two carriers at all, and the `rev` high-water mark is what makes it
    * harmless one layer up.
    */
   @Test

@@ -4,7 +4,7 @@ import kotlin.math.roundToInt
 
 // --- bounds enforced on every write -----------------------------------------------------------
 //
-// The phone stays the source of truth (docs/plan.md 2.2), so these exist to stop the watch
+// The phone stays the source of truth, so these exist to stop the watch
 // emitting nonsense, not to duplicate openGym's own validation.
 
 /** Bodyweight work logs 0 kg. */
@@ -13,7 +13,7 @@ const val MIN_WEIGHT_KG: Double = 0.0
 /** Above any real barbell load; keeps a stuck spinner from running away. */
 const val MAX_WEIGHT_KG: Double = 500.0
 
-/** The reference spinner shows 49.5 / 50.0 / 50.5 — 0.5 kg steps. See M2.4. */
+/** The reference spinner shows 49.5 / 50.0 / 50.5 — 0.5 kg steps. See. */
 const val WEIGHT_STEP_KG: Double = 0.5
 
 const val MIN_REPS: Int = 1
@@ -95,8 +95,8 @@ internal fun ActiveWorkout.toWorkoutState(
     weightUnit = weightUnit,
     restSecondsRemaining = restSecondsRemaining,
     restSecondsTotal = restSecondsTotal,
-    // M7.3: the workout page. `startMillis` is nullable in the document precisely so it can never
-    // be defaulted to 0 here (plan §2.1 rule 5).
+    // the workout page. `startMillis` is nullable in the document precisely so it can never
+    // be defaulted to 0 here.
     workoutName = name,
     startedAtMillis = startMillis,
     exercises = exercises.toRows(),
@@ -104,11 +104,10 @@ internal fun ActiveWorkout.toWorkoutState(
 }
 
 /**
- * The workout page's rows, one per exercise, in order (M7.3, plan §2.1).
+ * The workout page's rows, one per exercise, in order.
  *
  * `index` is the array position, so the invariant `rows[i].index == i` holds by construction here
- * and is asserted again in the tests. Progress is `done/total` sets only — no ticks, no checkmarks
- * (§0 decision 5).
+ * and is asserted again in the tests. Progress is `done/total` sets only — no ticks, no checkmarks.
  */
 internal fun List<WorkoutExercise>.toRows(): List<WorkoutRow> =
   mapIndexed { index, exercise ->

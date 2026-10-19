@@ -19,7 +19,7 @@ local.properties
 # F:\android\projects\opengym-wearos\keystore\keystore.properties
 keystore.properties
 
-# --- added for the M1 recovery point (note 39): build outputs, Gradle caches, IDE state, dumps ---
+# --- build outputs, Gradle caches, IDE state, dumps ---
 build/
 */build/
 .gradle/
@@ -28,3 +28,6 @@ local.properties
 .idea/
 *.apk
 *.hprof
+
+*.pyc
+__pycache__/

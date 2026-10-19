@@ -32,7 +32,7 @@ param(
   # second wear AVD is booted. Set it explicitly and every adb call below targets that serial and
   # nothing else.
   [string]$Serial = '',
-  [string]$Package = 'ch.duartesantos.opengym',
+  [string]$Package = 'ch.duartesantos.opengym.test',   # debug and benchmark carry the .test suffix; release does not
   # namespace != applicationId here, so the component name is not the package name + ".MainActivity"
   [string]$Activity = 'ch.duartesantos.opengym.wear.MainActivity',
   [int]$X = 0,

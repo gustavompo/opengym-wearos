@@ -143,10 +143,10 @@ private const val F_GAP_HINT_BUTTONS = 2.4f / REF_DISPLAY_PX
  * 10 (`4` of `49.5`), `prev.` hint 12 (its digits). The counter and neighbour were 14 and 12 in
  * the earlier transcription; 13 and 10 are what the pixels measure.
  *
- * U2a (Gus's report "the name of the exercise is always being cut"): the title moves from cap 16
+ *  (Gus's report "the name of the exercise is always being cut"): the title moves from cap 16
  * to cap 14 and gains a second line, and the `Set n/N` counter drops from cap 13 to cap 12 (its
  * own step, one below the 13.5 labels, so the labels stay the row's anchors). Both follow
- * `docs/notes/30-exercise-name-lengths.md` §8: cap 14 + 2 lines fits 15/15 real names at the
+ * ``: cap 14 + 2 lines fits 15/15 real names at the
  * title's chord.
  */
 private const val F_FONT_TITLE = (14f / REF_DISPLAY_PX) / CAP_TO_EM
@@ -159,7 +159,7 @@ private const val F_FONT_HINT = (12f / REF_DISPLAY_PX) / CAP_TO_EM
 private const val LINE_HEIGHT_FACTOR = 1.2f
 
 /*
- * U2a row: `Kg` · `Set n/N` · `Reps` on one line. The label slots are 60 reference px wide and are
+ *  row: `Kg` · `Set n/N` · `Reps` on one line. The label slots are 60 reference px wide and are
  * centred on the spinner cards (the labels sat there before, above their cards), so the labels keep
  * their measured x positions and the counter lands dead centre between them. The reference display
  * is 297 px and the measured card centres sit at +/-0.2306 of the display width; with the counter
@@ -167,7 +167,7 @@ private const val LINE_HEIGHT_FACTOR = 1.2f
  * measurement (Kg [103,124][141,159] centre 122, Reps centre 333).
  */
 /*
- * U2a row: `Kg` · `Set n/N` · `Reps` on one line. The label slots are 80 reference px wide so
+ *  row: `Kg` · `Set n/N` · `Reps` on one line. The label slots are 80 reference px wide so
  * their centres land on the spinner cards — the before measurement had the label ink at
  * x = 122 / 333 on the 454 px emulator, and the slots reproduce exactly that. The counter gets a
  * FIXED slot of 58 reference px (the measured width of `Set 1/4` at the cap-12 counter step), so
@@ -178,21 +178,21 @@ private const val F_LABEL_SLOT = 80f / REF_DISPLAY_PX
 private const val F_COUNTER_SLOT = 58f / REF_DISPLAY_PX
 
 /*
- * U2a geometry for the title's chord (see docs/notes/29-ui-foundation-findings.md §4): the title is
+ *  geometry for the title's chord: the title is
  * the first line of a centred column, so its vertical position is a function of the column's own
  * height. The metrics compute the line-1 centre in dp and hand that to `safeWidth`, which caps at
  * the circle's chord. `bandHeight = 0` intentionally: the cap must be the chord at the *line's*
  * centre (the row the glyphs' vertical middle actually sits on) - bandHeight would take the chord at
  * the line box's top edge, which is ~10 dp narrower than any ink row, over-constraining a two-line
- * title. The per-line margin to the bezel is verified by measurement (docs/notes/31 §5), not by
+ * title. The per-line margin to the bezel is verified by measurement, not by
  * arithmetic alone.
  */
 /**
- * U2a geometry for the title's chord (see docs/notes/29-ui-foundation-findings.md §4 and
- * docs/notes/31 §5.4): the title wraps to at most [TITLE_TWO_LINE_MAX] lines, and each line is
+ *  geometry for the title's chord (see and
+ * ): the title wraps to at most [TITLE_TWO_LINE_MAX] lines, and each line is
  * capped at the circle's chord at that line's INK row. The caps are not a fraction-of-reference-
  * constants: they are the measured positions of the ink (on the 454 px emulator, line-1 ink top
- * 46 px = 23 dp, line-2 ink top 82 px = 41 dp, documented in docs/notes/31 §5.4), expressed as
+ * 46 px = 23 dp, line-2 ink top 82 px = 41 dp, documented in), expressed as
  * display fractions like every geometry value. The TWO-LINE position is used for line 1's cap
  * even when the title renders one line: a one-line title sits LOWER (its column is shorter), so
  * the two-line ink row is the tightest chord any title ink ever sees, and capping by it is always
@@ -205,10 +205,10 @@ private const val TITLE_LINE2_INK_TOP = 41f / 227f
 /**
  * The reference's one dark neutral: `#1C1C1E` (28,28,30), measured on the chevron buttons' flat
  * fill (2757 exact pixels) and on the spinner cards' 2 px outline. It is now the theme's
- * [OpenGymSurface]: M2.2 moved that token off the research doc's unmeasured `#2C2C2C`, so the page
+ * [OpenGymSurface]: moved that token off the research doc's unmeasured `#2C2C2C`, so the page
  * no longer needs its own copy.
  *
- * U2a re-points the *button* fill at [OpenGymSurfaceHigh] (`#2C2C2E`, the palette's control rung)
+ *  re-points the *button* fill at [OpenGymSurfaceHigh] (`#2C2C2E`, the palette's control rung)
  * and gives buttons an [OpenGymOutline] edge: before, the chevron discs were the same `#1C1C1E` as
  * everything behind them, so no button had a visible edge (measured: (28,28,30) on the disc). The
  * name is kept so the reference comment above stays true; only the value moved.
@@ -226,7 +226,7 @@ private val CardOutline = OpenGymSurface
 private const val NEIGHBOUR_ALPHA = 0.55f
 
 /*
- * V1 (2026-10-11): the `Kg` / `Reps` labels used to be two STATIC colours taken from the reference
+ *  (2026-10-11): the `Kg` / `Reps` labels used to be two STATIC colours taken from the reference
  * screenshot (left white, right blue) with no relationship to which column the crown was driving.
  * They are now derived from the rotary target itself - see [selectorLabelColor] - so the colour
  * says what the bezel is currently turning, and the two can never disagree because there is only
@@ -234,7 +234,7 @@ private const val NEIGHBOUR_ALPHA = 0.55f
  *
  * The *values* keep their own measured colours (weight white, reps blue): those were read off the
  * reference and are not a selection signal. See the recommendation at the foot of
- * docs/notes/35-selection-colour-findings.md.
+ * 
  */
 
 /**
@@ -254,13 +254,13 @@ const val EXERCISE_PAGE_WEIGHT_TAG = "exercise_page.weight"
 const val EXERCISE_PAGE_REPS_TAG = "exercise_page.reps"
 const val EXERCISE_PAGE_PREV_HINT_TAG = "exercise_page.prev_hint"
 
-/** U2a: the `Set n/N` counter inside the label row (bounds-pinned by test). */
+/** the `Set n/N` counter inside the label row (bounds-pinned by test). */
 const val EXERCISE_PAGE_COUNTER_TAG = "exercise_page.counter"
 
 /**
  * Which spinner owns the rotating crown. Tapping a card moves it.
  *
- * V1: this is the ONE piece of state the page keeps for selection - the label colours (and the
+ * this is the ONE piece of state the page keeps for selection - the label colours (and the
  * selected card's outline) are derived from it, so "colour agrees with the crown target" is true
  * by construction rather than by two things being kept in sync. Internal rather than private only
  * so [selectorLabelColor] can be pinned by a JVM test.
@@ -279,7 +279,7 @@ internal enum class RotaryTarget {
  * The `♥` and `🔥` stat row from the reference is deliberately absent: openGym has no heart-rate or
  * calorie data for a live workout, and [WorkoutState] carries no field for either.
  *
- * M2.4: both selectors are crown-driven. Rotary events are handled once at the root and routed to
+ * both selectors are crown-driven. Rotary events are handled once at the root and routed to
  * whichever card was tapped last — a real crown emits one event per detent and the reference's
  * selector is a wheel, so one detent is one step (0.5 kg / 1 rep). The repository owns clamping, so
  * the displayed value cannot leave `0..500 kg` or `1..99` reps.
@@ -288,15 +288,15 @@ internal enum class RotaryTarget {
  * on purpose: the five-parameter signature the integration step calls is unchanged, and both
  * positional and named calls written against it still bind to it.
  *
- * M2.7: [canGoPrevious] / [canGoNext] now come from [WorkoutState.canGoPrevious] /
+ * [canGoPrevious] / [canGoNext] now come from [WorkoutState.canGoPrevious] /
  * [WorkoutState.canGoNext] in `WearApp`, i.e. from the workout's `exerciseIndex` and
  * `exerciseCount`, so the chevrons grey out on the first and last exercise. The `true` defaults
  * below exist only for previews and for tests that mount the screen directly.
  *
- * M7.2: both cards are also **finger-draggable** — a vertical drag moves the value, one row of
+ * both cards are also **finger-draggable** — a vertical drag moves the value, one row of
  * travel (`cardHeight / 3`) being one step, and the drag commits one absolute command on release
  * through [onSetWeight] / [onSetReps]. The drag belongs to the card, not to the page, and it
- * consumes **vertical motion only** (plan §2.5): a horizontal swipe over a card is never consumed
+ * consumes **vertical motion only**: a horizontal swipe over a card is never consumed
  * here, so the swipe-right BACK gesture above the page still sees it. The arithmetic is in
  * `WheelDrag.kt`, outside Compose, so it is unit-testable. Rotary handling is unchanged.
  */
@@ -315,12 +315,12 @@ fun ExercisePage(
    * What to say when there is nothing to render. The default is right for a screen that has no
    * phone at all (previews, tests); `WearApp` passes `emptyWorkoutMessage(link)`, which says
    * "Phone not connected" instead when a link exists but is down — decision 6 of
-   * `docs/notes/12-datalayer-decisions.md`.
+   * ``.
    */
   emptyMessage: String = "No active workout",
   /**
-   * M7.2: the absolute commit of a wheel drag — sent **once**, on release, and only when the value
-   * actually changed (`docs/notes/19-workout-page-wheel-plan.md` §2.3, §2.6). Appended after
+   * the absolute commit of a wheel drag — sent **once**, on release, and only when the value
+   * actually changed. Appended after
    * [emptyMessage] so no existing call site changes, and defaulted so a preview or a test that
    * mounts the screen directly still compiles; a drag whose release is not wired previews and sends
    * nothing.
@@ -329,11 +329,11 @@ fun ExercisePage(
    * `baseRev`-gated, so a burst of deltas would be refused `stale` after the first one.
    */
   onSetWeight: (Double) -> Unit = {},
-  /** M7.2: the reps half of [onSetWeight]. Same one-command-on-release rule. */
+  /** the reps half of [onSetWeight]. Same one-command-on-release rule. */
   onSetReps: (Int) -> Unit = {},
 ) {
   if (!state.isWorkoutActive) {
-    // M6.3 owns the real empty state. This exists so the screen cannot draw a spinner over a
+    //  owns the real empty state. This exists so the screen cannot draw a spinner over a
     // workout that does not exist.
     Box(
       modifier = modifier.fillMaxSize().background(OpenGymBlack),
@@ -358,17 +358,17 @@ fun ExercisePage(
   val unit = state.weightUnit
   val weightDisplay = unit.fromKg(state.weightKg)
 
-  // M7.2: the drag in progress in each column, or null while the column shows the projection.
+  // the drag in progress in each column, or null while the column shows the projection.
   var weightDrag by remember { mutableStateOf<WheelDrag?>(null) }
   var repsDrag by remember { mutableStateOf<WheelDrag?>(null) }
 
-  // U2a: one CLOCK_TICK per drag *step*. `wheelGesture` reports the whole-step count after every
+  // one CLOCK_TICK per drag *step*. `wheelGesture` reports the whole-step count after every
   // drag event; the running total lives here (survives recompositions; the gesture objects do not)
   // and one tick fires per step crossed, in either direction. A drag that returns to its origin
   // ticks the same steps backwards — the dial has genuinely been turned both ways.
   var lastDragSteps by remember { mutableStateOf(0) }
 
-  // U2a: the haptic ticker for this screen — the same CLOCK_TICK the system bezel emits, gated on
+  // the haptic ticker for this screen — the same CLOCK_TICK the system bezel emits, gated on
   // the system haptics setting. Fires on every button press, every rotary detent that lands a
   // step, and every drag step (below). NOT on a plain tap that only moves the crown's target.
   val tick = rememberHapticTick()
@@ -410,12 +410,12 @@ fun ExercisePage(
   ) {
     val metrics = remember(maxWidth, typography) { PageMetrics(maxWidth, typography) }
 
-    // M7.2: one row of travel is one step, and the card shows exactly three rows. In px, because
+    // one row of travel is one step, and the card shows exactly three rows. In px, because
     // that is the unit the drag arrives in; the arithmetic lives in WheelDrag.kt.
     val wheelRowPx =
       with(LocalDensity.current) { (metrics.cardHeight / WHEEL_ROWS_PER_CARD).toPx() }
 
-    // U2a: one CLOCK_TICK per crossed whole step, shared by both columns. `onStep` is invoked by
+    // one CLOCK_TICK per crossed whole step, shared by both columns. `onStep` is invoked by
     // [wheelGesture] with 0 at drag start and with the new whole-step count after every drag
     // event; a 0 resets the total without ticking.
     val onDragStep: (Int) -> Unit = { newSteps ->
@@ -429,7 +429,7 @@ fun ExercisePage(
     }
 
     // A column being dragged renders its own preview and ignores the projection until the drag
-    // ends (§2.6) — an incoming `state` must not move the digits under the finger. The phone's
+    // ends — an incoming `state` must not move the digits under the finger. The phone's
     // state wins again the moment the finger lifts.
     // Task 2: a drag's base is snapshotted in DISPLAY units, so the three rows on the card are
     // three clean steps of the unit the user reads; the release converts once, to kg.
@@ -437,7 +437,7 @@ fun ExercisePage(
     val reps = repsDrag?.reps(wheelRowPx) ?: state.reps
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-      // U2a: the title is chord-capped per line (cap 14, up to two lines) — the fix for the
+      // the title is chord-capped per line (cap 14, up to two lines) — the fix for the
       // reported clipping. `metrics.titleLineCap(0)` is the chord at line-1's ink row; the
       // two-line label can use the wider chord of its own rows below.
       ChordWrappedText(
@@ -450,7 +450,7 @@ fun ExercisePage(
 
       Spacer(Modifier.height(metrics.gapTitleCounter))
 
-      // U2a: `Kg` · `Set n/N` · `Reps` on ONE row. The labels keep their measured positions (the
+      // `Kg` · `Set n/N` · `Reps` on ONE row. The labels keep their measured positions (the
       // 60px slots are centred on the cards, so the label ink stays at ~122 / ~331 px on the 454
       // px emulator) while the counter slips into the space between them; the counter is a full
       // step smaller than the labels and muted, so the labels stay the row's anchors.
@@ -473,7 +473,7 @@ fun ExercisePage(
           color = OpenGymMuted,
           maxLines = 1,
           textAlign = TextAlign.Center,
-          // Fixed slot: pins the labels regardless of the counter text (§ row comment).
+          // Fixed slot: pins the labels regardless of the counter text (see the row comment above).
           modifier =
             Modifier.width(metrics.counterSlotWidth)
               .testTag(EXERCISE_PAGE_COUNTER_TAG),
@@ -673,7 +673,7 @@ private class PageMetrics(unit: Dp, typography: Typography) {
   val gapSelectorsHint = unit * F_GAP_SELECTORS_HINT
   val gapHintButtons = unit * F_GAP_HINT_BUTTONS
 
-  // U2a: the `Kg`/`Reps` slots bracket the counter. The slot width is chosen so the slots land
+  // the `Kg`/`Reps` slots bracket the counter. The slot width is chosen so the slots land
   // on the spinner cards (measured 122 / 333 px on the 454 px emulator — the before value); the
   // counter's slot is the measured width of `Set 1/4` at its cap-12 step, so the labels stay put.
   val labelSlotWidth = unit * F_LABEL_SLOT
@@ -688,11 +688,11 @@ private class PageMetrics(unit: Dp, typography: Typography) {
   val hintStyle = typography.bodySmall.scaled(width * F_FONT_HINT)
 
   /*
-   * U2a: the title's per-line chords. The constants are the measured ink rows of a TWO-LINE title
+   * the title's per-line chords. The constants are the measured ink rows of a TWO-LINE title
    * (the uppermost position, so the tightest) — see the constant block up top. `ChordWrappedText`
    * will never let a line exceed its own chord, and since glyph ink never sits above the line box
    * the chord at the ink row is a true (if hair-tight) bound; the screencap measurement
-   * (docs/notes/31 §5) verifies the actual clearance.
+   *  verifies the actual clearance.
    */
   val titleLine1Cap = safeWidth(unit, TITLE_LINE1_INK_TOP)
   val titleLine2Cap = safeWidth(unit, TITLE_LINE2_INK_TOP)
@@ -718,7 +718,7 @@ internal class WheelGesture(
   val onDragBy: (Float) -> Unit,
   val onEnd: () -> Unit,
   val onCancel: () -> Unit,
-  /** U2a: reports the whole-step count after every drag event; 0 at drag start. One CLOCK_TICK
+  /** reports the whole-step count after every drag event; 0 at drag start. One CLOCK_TICK
    *  per step crossed is the caller's job. */
   val onStep: (Int) -> Unit,
 )
@@ -731,7 +731,7 @@ internal class WheelGesture(
  * [base] — which is also what makes a drag that returns to its origin send nothing at all, and an
  * over-drag past an end (`preview` clamps) send nothing.
  *
- * [onStep] (U2a) is called with 0 at drag start and with the new whole-step count after every drag
+ * [onStep] is called with 0 at drag start and with the new whole-step count after every drag
  * event, so the caller can fire one tick per *step* crossed — never per pixel.
  */
 internal fun wheelGesture(
@@ -767,9 +767,9 @@ internal fun wheelGesture(
 /**
  * One spinner column: a rounded card holding the previous value, the selected value and the next
  * value, evenly spaced so the selected one sits at the card's centre. The `Kg` / `Reps` label that
- * used to live here moved into the page's label row (U2a) so `Set n/N` can share it.
+ * used to live here moved into the page's label row so `Set n/N` can share it.
  *
- * M7.2: the card is also a vertical drag target — see [wheelGesture].
+ * the card is also a vertical drag target — see [wheelGesture].
  */
 @Composable
 private fun SpinnerSelector(
@@ -779,7 +779,7 @@ private fun SpinnerSelector(
   selectedColor: Color,
   crownLabel: String,
   metrics: PageMetrics,
-  /** V1: is this the column the crown is driving? Brightens the card's outline. */
+  /** is this the column the crown is driving? Brightens the card's outline. */
   selected: Boolean,
   onSelect: () -> Unit,
   tag: String,
@@ -788,7 +788,7 @@ private fun SpinnerSelector(
   val shape = RoundedCornerShape(metrics.cardRadius)
   // Read through the holder, not captured: the pointer-input block below is started once.
   val wheel by rememberUpdatedState(gesture)
-  // V1: the selected card's edge is the palette's outline rung, the other stays the measured
+  // the selected card's edge is the palette's outline rung, the other stays the measured
   // card outline. Existing tokens only - nothing in theme/** changed.
   val outline = if (selected) OpenGymOutline else CardOutline
   Box(
@@ -798,7 +798,7 @@ private fun SpinnerSelector(
         .border(metrics.cardBorder, outline, shape)
         .clickable(onClick = onSelect)
         .pointerInput(Unit) {
-          // M7.2, plan §2.5: VERTICAL drags only. `detectDragGestures` consumes both axes and
+          // VERTICAL drags only. `detectDragGestures` consumes both axes and
           // would kill the swipe-right BACK gesture. With an explicit vertical orientation lock
           // the slop accumulator only ever looks at `|total y|`, so a horizontal drag is never
           // consumed here and propagates to whatever handles BACK above this page.
@@ -852,7 +852,7 @@ private fun SpinnerValue(text: String?, selectedColor: Color, metrics: PageMetri
  * `✓`). Emphasis is a fill change — the chevrons are [SurfaceDark] (now [OpenGymSurfaceHigh], the
  * palette's button rung) with a white glyph, `✓` is [OpenGymBlue] with a white glyph.
  *
- * U2a: buttons carry an [OpenGymOutline] edge so their extent is visible against the page — before,
+ * buttons carry an [OpenGymOutline] edge so their extent is visible against the page — before,
  * a chevron disc filled `OpenGymSurface` was the same value as the card outline behind it. Every
  * press also fires [onTick] (one CLOCK_TICK, gated on the system haptics setting).
  */

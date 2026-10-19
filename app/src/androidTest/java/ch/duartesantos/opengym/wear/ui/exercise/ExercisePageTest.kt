@@ -23,7 +23,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * M2.3 evidence: the exercise page, rendered against the real [FakeWorkoutRepository] and driven
+ *  evidence: the exercise page, rendered against the real [FakeWorkoutRepository] and driven
  * through it. `WearApp` is not involved — the screen is mounted directly, so a failure here is a
  * failure of this screen and not of navigation.
  *
@@ -192,10 +192,10 @@ class ExercisePageTest {
   }
 
   /**
-   * U2a: the `Set n/N` counter lives ON the label row now — its centre is between the two labels'
+   * the `Set n/N` counter lives ON the label row now — its centre is between the two labels'
    * centres, its row overlaps theirs, and it sits above the spinner cards and below the title. This
    * is the geometry the user asked for ("the Set X/Y can go down and be on the same level as the
-   * kg/reps labels"); the pixel measurement (docs/notes/31 §5) is the visual proof, this pins the
+   * kg/reps labels"); the pixel measurement is the visual proof, this pins the
    * structure.
    */
   @Test
@@ -227,9 +227,9 @@ class ExercisePageTest {
   }
 
   /**
-   * U2a: a real 39-character name renders as a two-line title (cap 14, chord-capped) — the fix for
+   * a real 39-character name renders as a two-line title (cap 14, chord-capped) — the fix for
    * the reported clipping. The semantics still carry the full string; the *visual* proof that none
-   * of it is cut by the bezel is the screencap measurement (docs/notes/31 §5), which this test
+   * of it is cut by the bezel is the screencap measurement, which this test
    * cannot see. What it pins is that the title actually takes two lines and stays above the label
    * row.
    */

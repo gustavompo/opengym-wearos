@@ -14,7 +14,7 @@ apply(from = rootProject.file("keystore.gradle"))
 android {
     // The Kotlin package root. Deliberately *not* the applicationId: the namespace is ours
     // (readable, no collision with the phone app's own sources), while the applicationId below
-    // is forced to match the phone app exactly (see docs/research/02-wear-phone-integration.md).
+    // is forced to match the phone app exactly.
     namespace = "ch.duartesantos.opengym.wear"
     compileSdk = 37
     defaultConfig {
@@ -46,6 +46,18 @@ android {
             // package names and the Wearable Data Layer refuses to route between them, so the
             // pair cannot be tested on emulators at all. The release applicationId is unaffected.
             applicationIdSuffix = ".test"
+        }
+        // Performance-measurement build: release code (R8 on, not debuggable) with the
+        // same ".test" applicationId and the shared key, so it installs over the debug build Gus
+        // runs and pairs with the phone's debug variant. `profileable` comes from
+        // src/benchmark/AndroidManifest.xml so atrace/simpleperf can still see it.
+        create("benchmark") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".test"
+            isDebuggable = false
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.findByName("opengym") ?: signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
         }
     }
     compileOptions {
@@ -79,6 +91,8 @@ dependencies {
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.activity.compose)
+  // Installs the baseline profiles the Compose/Wear libraries ship, on first launch.
+  implementation(libs.androidx.profileinstaller)
 
   // Arch Components
   implementation(libs.androidx.lifecycle.runtime.compose)
@@ -96,11 +110,11 @@ dependencies {
   implementation(libs.androidx.wear.compose.ui.tooling)
   implementation(libs.androidx.wear.tooling.preview)
 
-  // Link wire format (M3.1). JSON only — no serialization compiler plugin, so no @Serializable
+  // Link wire format. JSON only — no serialization compiler plugin, so no @Serializable
   // codegen and nothing to keep in sync with the Kotlin plugin version.
   implementation(libs.kotlinx.serialization.json)
 
-  // Wearable Data Layer (M3.4) — the production transport. `Wearable.getNodeClient()`,
+  // Wearable Data Layer — the production transport. `Wearable.getNodeClient`,
   // `getCapabilityClient()` and `getMessageClient()` all come from here. Note the group: it is
   // `com.google.android.gms:play-services-wearable`, not `androidx.wear:wearable` (no such
   // artifact) and not the deprecated Wearable Support Library.

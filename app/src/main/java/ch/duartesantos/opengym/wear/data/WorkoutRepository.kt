@@ -15,7 +15,7 @@ fun interface TimeSource {
 /**
  * The watch's view of the running workout, and the only way the UI changes it.
  *
- * Methods are named after the watch's buttons, not after openGym's internals. The bridge (M3/M4)
+ * Methods are named after the watch's buttons, not after openGym's internals. The bridge
  * maps them onto the store actions the phone's own buttons call, so a command issued from the
  * watch cannot diverge from the same command issued on the phone.
  */
@@ -42,12 +42,12 @@ interface WorkoutRepository {
   fun previousExercise()
 
   /**
-   * Makes `index` the phone's current exercise (M7.3, plan §2.2).
+   * Makes `index` the phone's current exercise.
    *
    * The workout page's tap. Absolute and idempotent — it carries the index the user chose, not a
    * step — so a late delivery is still correct and the phone does not need to gate it on `baseRev`.
    * It must not touch sets and must not start, stop or alter a rest; the phone owns that. The
-   * command is queued and retried like every other one (`docs/protocol.md` §5).
+   * command is queued and retried like every other one.
    *
    * Deliberately **not** applied locally: the watch renders only what the phone sends, so the
    * tapped row stays pending until a `state` with `exerciseIndex == index` arrives. [observeExerciseSelection]
@@ -56,7 +56,7 @@ interface WorkoutRepository {
   fun selectExercise(index: Int)
 
   /**
-   * The fate of the last [selectExercise], for the workout page's pending row (plan §2.4 rule 6).
+   * The fate of the last [selectExercise], for the workout page's pending row.
    *
    * The two events that end a pending row are both internal to the command machinery — an accepted
    * `state` that matches the requested index, and the command ending without one (`rejected`, or the
@@ -71,9 +71,9 @@ interface WorkoutRepository {
   /** Adjusts the open set's reps, clamped to [MIN_REPS]..[MAX_REPS]. */
   fun adjustReps(delta: Int)
 
-  // M7.2 (wheel) — additive; merged by hand.
+  //  (wheel) — additive; merged by hand.
   //
-  // Absolute setters, for the drag wheel's release (docs/notes/19-workout-page-wheel-plan.md §2.3).
+  // Absolute setters, for the drag wheel's release.
   // `adjustWeight`/`adjustReps` are relative and `baseRev`-gated, so a drag of ten steps cannot use
   // them: one absolute frame per drag is one command, where ten deltas are one command plus nine
   // `stale` refusals. Both target exactly what the deltas target — the open set of the current
@@ -93,7 +93,7 @@ interface WorkoutRepository {
 }
 
 /**
- * The state of the workout page's tap (M7.3, plan §2.4 rule 6).
+ * The state of the workout page's tap.
  *
  * [Abandoned] is deliberately sticky until the next selection rather than a one-shot event: a
  * collector that subscribes a moment late must still see it, and a stale one is harmless because the

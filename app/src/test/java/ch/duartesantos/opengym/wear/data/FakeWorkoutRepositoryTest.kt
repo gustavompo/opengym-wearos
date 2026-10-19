@@ -11,7 +11,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The fake exists so the screens can be built and tested before the phone bridge (M2). These tests
+ * The fake exists so the screens can be built and tested before the phone bridge. These tests
  * pin the behaviour the screens depend on, and prove the rest countdown can be driven instantly.
  *
  * Rest time is driven by the test scheduler's virtual clock, so `advanceTimeBy(90_000)` runs a

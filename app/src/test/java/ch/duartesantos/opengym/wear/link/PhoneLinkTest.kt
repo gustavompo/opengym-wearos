@@ -8,15 +8,15 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The logic that sits *beside* the Data Layer rather than inside it, and therefore the part of M3.4
- * that can actually be proven on this machine (`docs/notes/12-datalayer-decisions.md` §7).
+ * The logic that sits *beside* the Data Layer rather than inside it, and therefore the part of
+ * that can actually be proven on this machine.
  *
  * Two things live here:
  *
- *  - [selectPhoneNode] — decision §2 says the watch must not assume a single phone, so *which* phone
+ * [selectPhoneNode] — decision says the watch must not assume a single phone, so *which* phone
  *    is a rule that needs to be deterministic rather than incidental;
- *  - [emptyWorkoutMessage] — decision §6's whole visible surface: "we cannot see the phone" must not
- *    render as "no active workout". §1a adds the harder case: a *reachable node* that has never sent
+ * [emptyWorkoutMessage] — decision 's whole visible surface: "we cannot see the phone" must not
+ *  render as "no active workout". a adds the harder case: a *reachable node* that has never sent
  *    a `state` is not an idle workout either — that is exactly how the broken carrier read on
  *    hardware.
  */
@@ -122,7 +122,7 @@ class PhoneLinkTest {
   }
 
   /**
-   * The §1a defect, as a unit test: `connected` is about the *node*, not about the phone answering.
+   * The a defect, as a unit test: `connected` is about the *node*, not about the phone answering.
    *
    * A reachable node with no `state` ever received is the shape the broken carrier had on hardware —
    * handshake complete, node discovered, link `Connected`, payload discarded — and it also happens
@@ -150,7 +150,7 @@ class PhoneLinkTest {
 
   @Test
   fun `a disconnected link and an idle workout read differently`() {
-    // The rule §1a states outright, asserted as one comparison so it cannot drift apart again.
+    // The rule a states outright, asserted as one comparison so it cannot drift apart again.
     val disconnected = emptyWorkoutMessage(PhoneLinkState(connected = false))
     val idle = emptyWorkoutMessage(
       PhoneLinkState(connected = true, lastStateAtMillis = 1_790_000_000_000L),
@@ -160,7 +160,7 @@ class PhoneLinkTest {
 
   @Test
   fun `an incompatible phone says to update the app, not that no workout is running`() {
-    // `docs/protocol.md` §2: an empty version intersection leaves the *transport* Connected — a pipe
+    // ``: an empty version intersection leaves the *transport* Connected — a pipe
     // that moves bytes is not the layer that decides what they mean — so this state really occurs
     // with `connected = true`, and the incompatibility has to win the branch.
     assertEquals(

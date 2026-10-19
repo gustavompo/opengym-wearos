@@ -177,7 +177,7 @@ class WearGeometryTest {
   }
 
   /**
-   * The measurement of section 5 of `docs/notes/29-ui-foundation-findings.md`, turned into an
+   * The measurement of section 5 of ``, turned into an
    * assertion. The exercise page's title ink was measured on the emulator at rows y 42..67 of a 454 px
    * display, so its band centre is yFraction 0.1200 and its ink band is 26 px (13 dp) tall.
    *

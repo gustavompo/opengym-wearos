@@ -5,7 +5,7 @@ import ch.duartesantos.opengym.wear.data.ExerciseSelection
 import ch.duartesantos.opengym.wear.data.WorkoutState
 
 /**
- * The three screens (M7.3): the exercise page, the workout page's list of the session's exercises,
+ * The three screens: the exercise page, the workout page's list of the session's exercises,
  * and the rest timer.
  *
  * The rest timer is **not** a user-chosen screen. It is drawn in place of the chosen one while the
@@ -18,13 +18,13 @@ enum class Destination {
 }
 
 /**
- * Plan §2.4's navigation state machine — the whole of it, as a plain class so every rule is
+ * s navigation state machine — the whole of it, as a plain class so every rule is
  * testable without Compose.
  *
  * The rules it encodes, and nothing else:
  *
  *  1. `RestTimer` is the screen **iff the rest clock has time left**, whatever the user chose; when
- *     the rest ends the chosen screen comes back. (Unchanged from M2.5.)
+ *  the rest ends the chosen screen comes back.
  *  2. Exactly **one** piece of user-navigation state exists: [chosen]. It starts as
  *     [Destination.ExercisePage].
  *  3. BACK (the swipe-right gesture, and the system back key) from [Destination.ExercisePage] goes to
@@ -40,8 +40,8 @@ enum class Destination {
  *
  * The one thing this class deliberately does **not** decide is what BACK does while the rest screen
  * is drawn. The rest timer is an override of the *screen*, not of the user's choice (rules 1-2), so
- * BACK acts on [chosen] — see [back]. That is a judgement call the plan is silent about, and it is
- * recorded as such in `docs/notes/20-workout-page-findings.md`.
+ * BACK acts on [chosen] — see [back]. That is a judgement call is silent about, and it is
+ * recorded as such in ``.
  *
  * @param initialChosen the screen the user is on before any navigation. Must not be the rest timer.
  */
@@ -49,7 +49,7 @@ class WorkoutNavigation(initialChosen: Destination = Destination.ExercisePage) {
 
   init {
     require(initialChosen != Destination.RestTimer) {
-      "the rest timer is an override of the chosen screen, never a chosen screen (plan §2.4 rule 2)"
+      "the rest timer is an override of the chosen screen, never a chosen screen"
     }
   }
 

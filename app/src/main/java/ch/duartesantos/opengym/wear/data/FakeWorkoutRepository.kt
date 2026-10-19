@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-/** Where the fake session's `active.start` lands when the document carries none (M7.3). 45:12. */
+/** Where the fake session's `active.start` lands when the document carries none. 45:12. */
 private const val DEFAULT_STARTED_AGO_MILLIS: Long = 45L * 60_000L + 12_000L
 
 /**
- * In-memory [WorkoutRepository] for developing the screens before the phone bridge exists (M2).
+ * In-memory [WorkoutRepository] for developing the screens before the phone bridge exists.
  *
  * Deterministic by construction: there is no randomness and no implicit clock read — [timeSource]
  * is the only thing that can move time, so a test can drive an entire rest countdown instantly by
@@ -30,7 +30,7 @@ class FakeWorkoutRepository(
   private val tickIntervalMillis: Long = 1_000L,
   /**
    * How long ago the fake session started, when [initialWorkout] carries no `active.start` of its
-   * own (M7.3). [ActiveWorkout.FullBodyA] leaves it null on purpose so the fake is still the one
+   * own. [ActiveWorkout.FullBodyA] leaves it null on purpose so the fake is still the one
    * thing that reads the clock, through [timeSource] rather than [System.currentTimeMillis].
    *
    * The default lands the elapsed timer at 45:12, which is the shape the reference's timer shows
@@ -127,7 +127,7 @@ class FakeWorkoutRepository(
   }
 
   /**
-   * M7.3: the fake's answer to the workout page's tap.
+   * the fake's answer to the workout page's tap.
    *
    * It mirrors the phone's contract rather than short-circuiting it: an out-of-range index is
    * ignored (the real phone answers `rejected: invalid` and changes nothing), an in-range one is
@@ -155,7 +155,7 @@ class FakeWorkoutRepository(
     mutateOpenSet { it.copy(reps = clampReps(it.reps + delta)) }
   }
 
-  // M7.2 (wheel) — additive; merged by hand.
+  //  (wheel) — additive; merged by hand.
   @Synchronized
   override fun setWeight(weightKg: Double) {
     mutateOpenSet { it.copy(weightKg = clampWeightKg(weightKg)) }
@@ -279,7 +279,7 @@ class FakeWorkoutRepository(
         )
       }
 
-    // Plan §2.4 rule 6: a pending tap ends when the projection carries the index it asked for.
+    //  rule 6: a pending tap ends when the projection carries the index it asked for.
     val pending = selection.value
     if (pending is ExerciseSelection.Pending && pending.index == state.value.exerciseIndex) {
       selection.value = ExerciseSelection.Idle

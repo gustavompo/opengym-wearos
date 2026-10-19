@@ -12,7 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /*
- * M2.8 — the rest clock's audible cues.
+ *  — the rest clock's audible cues.
  *
  * Three pieces, split so the interesting part is testable without a device:
  *
@@ -50,7 +50,7 @@ const val BEEPS_AT_ZERO: Int = 3
  * At most **one** tick per step, not one per second crossed. A tick is a metronome beat, so a step
  * that skips several seconds at once - a coalesced ticker, or a screen that was not recomposing -
  * must not fire a burst of five of them. In the normal case the state arrives once per second and
- * this is a tick per second: 6 -> 5 -> 4 -> 3 -> 2 -> 1 ticks five times, exactly as M2.8 asks.
+ * this is a tick per second: 6 -> 5 -> 4 -> 3 -> 2 -> 1 ticks five times, exactly as asks.
  */
 fun restTonesFor(
   previousSeconds: Int,
@@ -161,7 +161,7 @@ class RestSoundController(
  * True when the watch's own settings permit a sound. Pure, so the policy is unit-testable without
  * a device: every branch below has a test.
  *
- * Silent and vibrate ringer modes both mean "do not make a noise" — the whole point of M2.8's
+ * Silent and vibrate ringer modes both mean "do not make a noise" — the whole point of 's
  * "respect the watch's silent mode". A muted or zero-volume stream is the same answer asked a
  * different way, because Wear OS exposes volume separately from ringer mode.
  */
@@ -172,7 +172,7 @@ internal fun soundAllowed(ringerMode: Int, streamVolume: Int, streamMuted: Boole
 }
 
 /**
- * The device half of M2.8: [ToneGenerator] on the notification stream.
+ * The device half of: [ToneGenerator] on the notification stream.
  *
  * Stream choice: `STREAM_NOTIFICATION`, deliberately not `STREAM_ALARM`. An alarm-stream timer
  * would blast through silent mode by design, which contradicts the brief; the notification stream
@@ -236,7 +236,7 @@ class AndroidRestToneSink(
 
   private companion object {
     /** Logcat tag. The only host-observable proof of the sound path on an emulator, whose audio
-     * output cannot be captured from the ADB host; see docs/notes/05-rest-timer-evidence.md. */
+     * output cannot be captured from the ADB host; see */
     const val LOG_TAG = "RestSound"
 
     /** See the class comment for why this is the notification stream and not the alarm stream. */

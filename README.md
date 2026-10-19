@@ -1,93 +1,116 @@
-# wearopengym — the Wear OS companion for openGym
+# openGym for Wear OS
 
-Native Compose for Wear OS. No WebView, no Capacitor: the watch renders its own UI and mirrors a
-live workout from the phone's openGym app. Architecture and scope: `../docs/plan.md`.
+A native Wear OS companion for [openGym](https://github.com/DuarteSantos8/openGym). The phone stays
+the source of truth for a workout; the watch mirrors it live — current exercise, the set counter,
+weight and reps you drive with the bezel, marking a set complete, and the rest timer. No WebView and
+no Capacitor: the watch renders its own Compose for Wear OS UI.
 
-## Configuration
+| Exercise page | Workout page | Rest timer |
+|---|---|---|
+| ![Exercise page](screens/1-exercise-page.png) | ![Workout page](screens/2-workout-page.png) | ![Rest timer](screens/3-rest-timer.png) |
+| Weight and reps per column, the crown drives whichever column is highlighted blue | Every exercise with its `done/total` sets; tap a row to make it current | Countdown ring, `-15` / `+15`, `Skip`, and the next set up |
 
-| Setting | Value |
-|---|---|
-| `applicationId` | `ch.duartesantos.opengym` — **identical to the phone app.** Hard Wearable Data Layer requirement (matching package name *and* signing key). Do not change. |
-| `namespace` / Kotlin root | `ch.duartesantos.opengym.wear` — deliberately different from the applicationId, so the launcher component is `ch.duartesantos.opengym/ch.duartesantos.opengym.wear.MainActivity` |
-| `app_name` | `openGym` |
-| Gradle project | `wearopengym` |
-| UI toolkit | Wear Compose Material 3 `1.7.1` |
-| minSdk / targetSdk / compileSdk | `30` / `36` / `37` |
-| App model | Standalone (`com.google.android.wearable.standalone = true`) |
+## Requirements
+
+- A Wear OS 3.0+ watch (`minSdk 30`). Built and tested against a Galaxy Watch 5 Pro.
+- The **phone app must be the openGym build carrying the wear bridge**: `gustavompo/openGym`, branch
+  `wear-bridge`. The watch is useless without it — the two are one product.
+- The watch app and the phone app **must share the same `applicationId` and the same signing key**.
+  The Wearable Data Layer matches on both, and silently does nothing when they differ.
+
+## Install
+
+1. **Signing key.** Both apps are signed with one shared keystore. Put a `keystore.properties` at the
+   Gradle root (it is git-ignored, and a copy is never committed):
+
+   ```properties
+   storeFile=/path/to/opengym-wearos.jks
+   storePassword=…
+   keyAlias=opengym-wearos
+   keyPassword=…
+   ```
+
+   The build works without it — `keystore.gradle` falls back to AGP's default debug key — but a build
+   without the shared key will install and then never pair with the phone. That failure looks like a
+   network bug and is not one.
+
+2. **Build and install on the watch.**
+
+   ```bash
+   export JAVA_HOME=/path/to/jdk-21          # or set sdk.dir in local.properties for the SDK
+   ./gradlew.bat :app:assembleDebug
+   adb -s <watch-serial> install -r -d app/build/outputs/apk/debug/app-debug.apk
+   adb -s <watch-serial> shell am start -n ch.duartesantos.opengym.test/ch.duartesantos.opengym.wear.MainActivity
+   ```
+
+   Without the phone, launch with the built-in fixture to see the UI on its own:
+
+   ```bash
+   adb -s <watch-serial> shell am start -n ch.duartesantos.opengym.test/ch.duartesantos.opengym.wear.MainActivity --es transport fake
+   ```
+
+3. **Install the phone app** from the `wear-bridge` branch of the fork, building it the way that
+   branch's own README describes. The applicationIds must line up:
+
+   | Build type | `applicationId` (watch and phone) |
+   |---|---|
+   | `debug`, `benchmark` | `ch.duartesantos.opengym.test` |
+   | `release` | `ch.duartesantos.opengym` |
+
+   A debug watch app only pairs with a debug phone app. Mixing them is the most common way this
+   appears broken.
+
+## Build variants
+
+| Variant | Signing / R8 | Use |
+|---|---|---|
+| `debug` | debuggable, no R8 | developing. **Never measure performance on it** — it costs ~30 ms more per frame, which is enough to make a smooth list look broken |
+| `benchmark` | not debuggable, R8 on, `<profileable>` | measuring on the real watch. This is representative of what a user gets |
+| `release` | not debuggable, R8 off (today) | shipping. Turning R8 on for release is still open — until then a release build looks like the debug one on a slow watch |
+
+## How the two sides talk
+
+Primary path is the Wearable Data Layer (`link/DataLayerClient`, `OpenGymWearListenerService`). When
+that is unavailable — no Google account, a sideloaded pair, an emulator — there is a TCP relay
+fallback (`link/TcpRelayTransport`) for local testing. The wire contract is implemented in
+`link/WireProtocol.kt`; the phone side mirrors it in `frontend/src/lib/wear-*.js` in the fork.
+
+Weights cross the wire in **kilograms only**; the display unit (kg/lb) follows the phone's own setting
+and is applied on each side (`data/WeightUnit.kt`), so unit changes never desynchronise the document.
 
 ## Layout
 
 ```
 app/src/main/java/ch/duartesantos/opengym/wear/
-├── MainActivity.kt                 # creates the repository, hosts WearApp
-├── data/
-│   ├── WorkoutState.kt             # the projection the screens render (10 fields)
-│   ├── WorkoutDocument.kt          # ActiveWorkout / WorkoutExercise / WorkoutSet + the seed
-│   ├── WorkoutProjection.kt        # set index, prev-set lookup, clamps, ActiveWorkout -> WorkoutState
-│   ├── WorkoutRepository.kt        # the interface + TimeSource
-│   └── FakeWorkoutRepository.kt    # in-memory implementation, no phone needed
-├── navigation/Destination.kt       # Destination + destinationFor(WorkoutState)
-├── theme/
-│   ├── OpenGymColors.kt            # the palette from docs/research/00-ux-references.md
-│   └── OpenGymTheme.kt             # OpenGymWearTheme + OpenGymSpacing + the type-role mapping
+├── MainActivity.kt              creates the repository, hosts WearApp
+├── data/                        pure Kotlin, no android.* imports, fully unit-testable
+│   ├── WorkoutState.kt          the projection the screens render
+│   ├── WorkoutProjection.kt     set index, previous-set lookup, clamps
+│   ├── WorkoutDocument.kt       ActiveWorkout / WorkoutExercise / WorkoutSet
+│   ├── WorkoutRepository.kt     the interface + TimeSource
+│   ├── FakeWorkoutRepository.kt in-memory implementation (the `fake` transport)
+│   └── WeightUnit.kt            kg/lb display conversion
+├── link/                        phone link: Data Layer client + TCP relay + wire protocol
+├── navigation/Destination.kt    Destination + destinationFor(WorkoutState) — derived, never stored
+├── theme/                       palette and type roles
 └── ui/
-    ├── WearApp.kt                  # AppScaffold + the two destinations
-    ├── exercise/ExercisePagePlaceholder.kt   # PLACEHOLDER — M2.3 replaces it
-    └── rest/RestTimerPlaceholder.kt          # PLACEHOLDER — M2.5 replaces it
+    ├── WearApp.kt               AppScaffold and the three destinations
+    ├── WearGeometry.kt          chord maths: the screen is a circle, not a rectangle
+    ├── exercise/                the wheel page: ExercisePage, WheelDrag, ChordText, Haptics
+    ├── workout/                 the list page: WorkoutPage, Haptics
+    └── rest/                    RestTimer (ring) and RestSound
 ```
 
-`data/` has no `android.*` imports, so all of it is unit-testable on the JVM.
+`ui/WearGeometry.kt` matters more than it looks: usable width is the **chord** of the circle at each
+row's height, so text is constrained per row rather than to the screen width.
 
-## Behaviour the screens can rely on
-
-- The destination is derived from state, not stored: `destinationFor` returns `RestTimer` while
-  `restSecondsRemaining > 0`, otherwise `ExercisePage`. `completeSet()` starts the rest clock, so
-  `✓` advances; the clock reaching zero (or `skipRest()`) returns.
-- `currentSetIndex` is `count { done } + 1`, clamped to `1..totalSets`.
-- `previousWeightKg` / `previousReps` prefer a set completed in this session and fall back to the
-  seeded previous-session history; both are null when neither exists.
-- Weight snaps to 0.5 kg and clamps to 0..500; reps clamp to 1..99; rest clamps to 0..600 s.
-- Finishing an exercise advances to the next one and rests for the duration of the exercise just
-  completed. Finishing the session's last set ends it — `WorkoutState.None`, `isWorkoutActive`
-  false, `restSecondsRemaining == 0` and no rest started.
-- The fake is deterministic: it reads time only through the injected `TimeSource`, and its rest
-  ticker runs on an injected `CoroutineScope`, so tests drive whole countdowns with
-  `advanceTimeBy`.
-
-## Build, run, test
-
-> The SDK and JDK are not on `PATH`; `local.properties` covers `sdk.dir`, but `JAVA_HOME` must be
-> set. `scripts/wear.ps1` does all of it. Three emulators are usually up on this box, so export
-> `ANDROID_SERIAL=emulator-5554` before the Gradle commands too — it is what keeps
-> `connectedDebugAndroidTest` from failing with "more than one device".
-
-```powershell
-pwsh -File scripts/wear.ps1 -Command loop     # build + install + launch + wait for content
-pwsh -File scripts/wear.ps1 -Command dump     # exact labels and pixel bounds
-pwsh -File scripts/wear.ps1 -Command shot     # PNG (hand it to the vision subagent, don't read it)
-pwsh -File scripts/wear.ps1 -Command test     # instrumented tests; prints the <testsuite> line
-```
+## Tests
 
 ```bash
-# the underlying commands
-./gradlew.bat :app:assembleDebug :app:testDebugUnitTest
-ANDROID_SERIAL=emulator-5554 ./gradlew.bat :app:connectedDebugAndroidTest
-adb -s emulator-5554 install -r app/build/outputs/apk/debug/app-debug.apk
-adb -s emulator-5554 shell am start -n ch.duartesantos.opengym/ch.duartesantos.opengym.wear.MainActivity
+./gradlew.bat :app:testDebugUnitTest                       # JVM: ~245 tests
+./gradlew.bat :app:connectedDebugAndroidTest               # instrumented, needs a device
 ```
 
-## Status
-
-- ✅ Installed and launched on `WearHello_API34` (Wear OS 5, API 34, 454×454). `pm list packages`
-  reports `package:ch.duartesantos.opengym`.
-- ✅ Unit tests: `FakeWorkoutRepositoryTest` 17, `WorkoutProjectionTest` 18, `DestinationTest` 3 —
-  38 tests, `failures="0"`.
-- ✅ Instrumented: `MainActivityLaunchTest` `tests="3" failures="0" errors="0" skipped="0"` —
-  launch, `✓` → rest timer, `Skip` → back to the exercise page on set 2.
-- ✅ The theme is live, confirmed by pixel-checking a screenshot: 72.5 % `#000000` background,
-  21.7 % `#2196F3` (the accent-filled buttons), `#FFFFFF` and `#AAAAAA` text. Not dynamic colour.
-- ⚠️ `applicationId` still matches the phone app's *release* package. The debug build type does not
-  add a suffix, so installing this watch app alongside an openGym debug build on one device would
-  collide — irrelevant for the watch, relevant if anyone tests on a phone.
-- ⚠️ No signing config yet; both the watch app and the fork still need the shared keystore (M4.2).
-- ⏳ Both screens are placeholders. Delete the placeholder file when the real screen lands.
+The JVM suite carries most of the weight — the ring geometry, the wheel, the protocol and the
+projection are all pure functions. Pin `ANDROID_SERIAL` for the instrumented run if more than one
+device is attached; `connectedDebugAndroidTest` targets every device it finds and uninstalls afterwards.

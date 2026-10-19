@@ -15,7 +15,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * M2.8's scheduling logic, on the JVM.
+ * s scheduling logic, on the JVM.
  *
  * The interesting tests are the ones at the bottom: they drive the *real* [FakeWorkoutRepository]
  * - the one the screens use - with a [TestScope]'s virtual clock, so a whole 90 second rest is
