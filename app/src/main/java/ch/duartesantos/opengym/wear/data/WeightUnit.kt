@@ -27,7 +27,7 @@ import kotlin.math.roundToLong
  * notes 36 for the alternatives and why they were not taken.
  */
 enum class WeightUnit(
-  /** What the `Kg` / `Reps` label row and the crown's accessibility description say. */
+  /** What the `kg` / `reps` label row and the crown's accessibility description say. */
   val label: String,
   /** The value on the wire, in the `unit` field of a `state` frame's `workout` object. */
   val wireName: String,
@@ -36,8 +36,8 @@ enum class WeightUnit(
   /** One crown detent / one drag row, in this unit. Always a multiple of [DISPLAY_STEP]. */
   val displayStep: Double,
 ) {
-  Kilograms(label = "Kg", wireName = "kg", hintLabel = "kg", displayStep = WEIGHT_STEP_KG),
-  Pounds(label = "Lb", wireName = "lb", hintLabel = "lb", displayStep = 1.0);
+  Kilograms(label = "kg", wireName = "kg", hintLabel = "kg", displayStep = WEIGHT_STEP_KG),
+  Pounds(label = "lb", wireName = "lb", hintLabel = "lb", displayStep = 1.0);
 
   /** kg on the wire -> the number the user reads, snapped to this unit's display lattice. */
   fun fromKg(kg: Double): Double = clampDisplay(if (this == Kilograms) kg else kg * LB_PER_KG)

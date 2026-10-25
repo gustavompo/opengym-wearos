@@ -61,7 +61,7 @@ class WeightUnitTest {
   @Test
   fun theDisplayStepIsUnchangedForKilograms() {
     assertEquals(0.5, kg.displayStep, 0.0)
-    assertEquals("Kg", kg.label)
+    assertEquals("kg", kg.label)
     assertEquals("kg", kg.wireName)
     assertEquals("kg", kg.hintLabel)
     assertEquals(500.0, kg.maxDisplay, 0.0)
@@ -95,7 +95,7 @@ class WeightUnitTest {
   @Test
   fun poundsStepIsACleanWholePound() {
     assertEquals(1.0, lb.displayStep, 0.0)
-    assertEquals("Lb", lb.label)
+    assertEquals("lb", lb.label)
     assertEquals("lb", lb.wireName)
     assertEquals("lb", lb.hintLabel)
   }

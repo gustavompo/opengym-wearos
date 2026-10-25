@@ -226,15 +226,16 @@ private val CardOutline = OpenGymSurface
 private const val NEIGHBOUR_ALPHA = 0.55f
 
 /*
- *  (2026-10-11): the `Kg` / `Reps` labels used to be two STATIC colours taken from the reference
+ *  (2026-10-11): the `kg` / `reps` labels used to be two STATIC colours taken from the reference
  * screenshot (left white, right blue) with no relationship to which column the crown was driving.
  * They are now derived from the rotary target itself - see [selectorLabelColor] - so the colour
  * says what the bezel is currently turning, and the two can never disagree because there is only
  * one piece of state. Deliberate divergence from the reference, which has no such affordance.
  *
- * The *values* keep their own measured colours (weight white, reps blue): those were read off the
- * reference and are not a selection signal. See the recommendation at the foot of
- * 
+ * (2026-10-25): the *values* kept the reference's static colours (weight white, reps blue whatever
+ * was selected), so tapping a card recoloured only the label above it and the weight digit read as
+ * "selected" while the crown was on reps. [selectorValueColor] makes the whole column follow the
+ * target: selected is the accent, the other stays white.
  */
 
 /**
@@ -244,6 +245,13 @@ private const val NEIGHBOUR_ALPHA = 0.55f
  */
 internal fun selectorLabelColor(column: RotaryTarget, selected: RotaryTarget): Color =
   if (column == selected) OpenGymBlue else OpenGymMuted
+
+/**
+ * The value colour for [column] given the current crown target - the same rule as the label, with
+ * [OpenGymWhite] instead of muted for the idle column so the number stays the card's main content.
+ */
+internal fun selectorValueColor(column: RotaryTarget, selected: RotaryTarget): Color =
+  if (column == selected) OpenGymBlue else OpenGymWhite
 
 /** Tags. Distinct from `ExercisePagePlaceholder`'s, which is a different, still-live screen. */
 const val EXERCISE_PAGE_TAG = "exercise_page"
@@ -274,7 +282,7 @@ internal enum class RotaryTarget {
  * The exercise page: what the user looks at between every set.
  *
  * Same vertical order as `references/exercise-page.png`: title, `Set n/N`, two vertical spinner
- * selectors (`Kg` / `Reps`), the `prev. …` hint, then `‹` / `✓` / `›`.
+ * selectors (`kg` / `reps`), the `prev. …` hint, then `‹` / `✓` / `›`.
  *
  * The `♥` and `🔥` stat row from the reference is deliberately absent: openGym has no heart-rate or
  * calorie data for a live workout, and [WorkoutState] carries no field for either.
@@ -480,7 +488,7 @@ fun ExercisePage(
         )
         Box(Modifier.width(metrics.labelSlotWidth), contentAlignment = Alignment.Center) {
           Text(
-            text = "Reps",
+            text = "reps",
             style = metrics.labelStyle,
             color = selectorLabelColor(RotaryTarget.Reps, rotaryTarget),
             maxLines = 1,
@@ -495,7 +503,7 @@ fun ExercisePage(
           valueText = formatWeight(weightShown),
           above = weightNeighbour(weightShown, -unit.displayStep, unit),
           below = weightNeighbour(weightShown, +unit.displayStep, unit),
-          selectedColor = OpenGymWhite,
+          valueColor = selectorValueColor(RotaryTarget.Weight, rotaryTarget),
           crownLabel = unit.label,
           metrics = metrics,
           selected = rotaryTarget == RotaryTarget.Weight,
@@ -517,8 +525,8 @@ fun ExercisePage(
           valueText = reps.toString(),
           above = repsNeighbour(reps, -1),
           below = repsNeighbour(reps, +1),
-          selectedColor = OpenGymBlue,
-          crownLabel = "Reps",
+          valueColor = selectorValueColor(RotaryTarget.Reps, rotaryTarget),
+          crownLabel = "reps",
           metrics = metrics,
           selected = rotaryTarget == RotaryTarget.Reps,
           onSelect = { rotaryTarget = RotaryTarget.Reps },
@@ -766,7 +774,7 @@ internal fun wheelGesture(
 
 /**
  * One spinner column: a rounded card holding the previous value, the selected value and the next
- * value, evenly spaced so the selected one sits at the card's centre. The `Kg` / `Reps` label that
+ * value, evenly spaced so the selected one sits at the card's centre. The `kg` / `reps` label that
  * used to live here moved into the page's label row so `Set n/N` can share it.
  *
  * the card is also a vertical drag target — see [wheelGesture].
@@ -776,7 +784,7 @@ private fun SpinnerSelector(
   valueText: String,
   above: String?,
   below: String?,
-  selectedColor: Color,
+  valueColor: Color,
   crownLabel: String,
   metrics: PageMetrics,
   /** is this the column the crown is driving? Brightens the card's outline. */
@@ -822,26 +830,26 @@ private fun SpinnerSelector(
       verticalArrangement = Arrangement.SpaceEvenly,
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-      SpinnerValue(above, selectedColor, metrics)
+      SpinnerValue(above, valueColor, metrics)
       Text(
         text = valueText,
         style = metrics.valueStyle,
-        color = selectedColor,
+        color = valueColor,
         maxLines = 1,
         textAlign = TextAlign.Center,
       )
-      SpinnerValue(below, selectedColor, metrics)
+      SpinnerValue(below, valueColor, metrics)
     }
   }
 }
 
 /** A neighbour value, or a blank line of the same height when the wheel ends here. */
 @Composable
-private fun SpinnerValue(text: String?, selectedColor: Color, metrics: PageMetrics) {
+private fun SpinnerValue(text: String?, color: Color, metrics: PageMetrics) {
   Text(
     text = text ?: " ",
     style = metrics.neighbourStyle,
-    color = selectedColor.copy(alpha = NEIGHBOUR_ALPHA),
+    color = color.copy(alpha = NEIGHBOUR_ALPHA),
     maxLines = 1,
     textAlign = TextAlign.Center,
   )

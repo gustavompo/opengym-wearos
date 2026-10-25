@@ -8,9 +8,9 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 /**
- * the `Kg` / `Reps` label colours are a pure function of the rotary target, so the colour a
- * user sees can never disagree with the column the crown is turning. These are the JVM half; the
- * instrumented [ExercisePageSelectionColourTest] reads the actual pixels.
+ * the `kg` / `reps` label and value colours are pure functions of the rotary target, so the
+ * colour a user sees can never disagree with the column the crown is turning. These are the JVM
+ * half; the instrumented [ExercisePageSelectionColourTest] reads the actual pixels.
  *
  * `OpenGymBlue` is `#FF1D82EA` = (29,130,234), measured from the reference; `OpenGymMuted` is
  * `#FFAAAAAA` = (170,170,170).
@@ -46,7 +46,7 @@ class ExercisePageSelectionColourTest {
   }
 
   /**
-   * The old behaviour must not come back silently: `Kg` used to be [OpenGymWhite] whatever the
+   * The old behaviour must not come back silently: `kg` used to be [OpenGymWhite] whatever the
    * crown was doing, which is indistinguishable from "unselected" only because the user asked for
    * a muted unselected state and white is not muted.
    */
@@ -56,6 +56,32 @@ class ExercisePageSelectionColourTest {
       for (column in RotaryTarget.entries) {
         assertNotEquals(OpenGymWhite, selectorLabelColor(column, selected))
       }
+    }
+  }
+
+  /**
+   * 2026-10-25: the values used to keep the reference's static colours (weight white, reps blue)
+   * whatever was selected, so tapping a card recoloured only its label. The value now follows the
+   * same target as the label - accent when selected, white when idle.
+   */
+  @Test
+  fun theSelectedValueWearsTheAccent() {
+    assertEquals(OpenGymBlue, selectorValueColor(RotaryTarget.Weight, RotaryTarget.Weight))
+    assertEquals(OpenGymBlue, selectorValueColor(RotaryTarget.Reps, RotaryTarget.Reps))
+  }
+
+  @Test
+  fun theIdleValueStaysWhite() {
+    assertEquals(OpenGymWhite, selectorValueColor(RotaryTarget.Weight, RotaryTarget.Reps))
+    assertEquals(OpenGymWhite, selectorValueColor(RotaryTarget.Reps, RotaryTarget.Weight))
+  }
+
+  @Test
+  fun exactlyOneValueIsAccentedAtATime() {
+    for (selected in RotaryTarget.entries) {
+      val accented =
+        RotaryTarget.entries.filter { selectorValueColor(it, selected) == OpenGymBlue }
+      assertEquals(listOf(selected), accented)
     }
   }
 }

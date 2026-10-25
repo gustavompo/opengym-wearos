@@ -3,6 +3,7 @@ package ch.duartesantos.opengym.wear.ui.rest
 import android.media.AudioManager
 import ch.duartesantos.opengym.wear.data.FakeWorkoutRepository
 import ch.duartesantos.opengym.wear.data.TimeSource
+import ch.duartesantos.opengym.wear.data.WeightUnit
 import ch.duartesantos.opengym.wear.data.WorkoutState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -92,6 +93,14 @@ class RestSoundTest {
   @Test
   fun theSetLineDescribesTheSetTheRestIsFor() {
     assertEquals("Set 2/4: 50.0 kg x 10", formatUpcomingSet(state(remaining = 89, total = 120)))
+  }
+
+  @Test
+  fun theSetLineFollowsTheProfileUnit() {
+    assertEquals(
+      "Set 2/4: 110.0 lb x 10",
+      formatUpcomingSet(state(remaining = 89, total = 120, weightUnit = WeightUnit.Pounds)),
+    )
   }
 
   // --- virtual time: the whole countdown --------------------------------------------------------
@@ -200,8 +209,13 @@ class RestSoundTest {
 
   // --- helpers ---------------------------------------------------------------------------------
 
-  private fun state(remaining: Int, total: Int) =
+  private fun state(
+    remaining: Int,
+    total: Int,
+    weightUnit: WeightUnit = WeightUnit.Kilograms,
+  ) =
     WorkoutState(
+      weightUnit = weightUnit,
       isWorkoutActive = true,
       exerciseName = "Lat Pulldown",
       exerciseIndex = 0,

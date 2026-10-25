@@ -85,8 +85,8 @@ class ExercisePageTest {
     // them, and the previous-set hint.
     rule.onNodeWithText("Lat Pulldown").assertIsDisplayed()
     rule.onNodeWithText("Set 1/4").assertIsDisplayed()
-    rule.onNodeWithText("Kg").assertIsDisplayed()
-    rule.onNodeWithText("Reps").assertIsDisplayed()
+    rule.onNodeWithText("kg").assertIsDisplayed()
+    rule.onNodeWithText("reps").assertIsDisplayed()
     rule.onNodeWithText("50.0").assertIsDisplayed()
     rule.onNodeWithText("10").assertIsDisplayed()
     rule.onNodeWithText("49.5").assertIsDisplayed()
@@ -202,8 +202,8 @@ class ExercisePageTest {
   fun theSetCounterSitsBetweenTheLabelsOnTheirRow() {
     show()
 
-    val kg = rule.onNodeWithText("Kg").fetchSemanticsNode().boundsInRoot
-    val reps = rule.onNodeWithText("Reps").fetchSemanticsNode().boundsInRoot
+    val kg = rule.onNodeWithText("kg").fetchSemanticsNode().boundsInRoot
+    val reps = rule.onNodeWithText("reps").fetchSemanticsNode().boundsInRoot
     val counter = rule.onNodeWithTag(EXERCISE_PAGE_COUNTER_TAG).fetchSemanticsNode().boundsInRoot
     val title = rule.onNodeWithText("Lat Pulldown").fetchSemanticsNode().boundsInRoot
     val card = rule.onNodeWithTag(EXERCISE_PAGE_WEIGHT_TAG).fetchSemanticsNode().boundsInRoot
@@ -244,7 +244,7 @@ class ExercisePageTest {
 
     rule.onNodeWithText("cable lat pulldown full range of motion").assertIsDisplayed()
     val title = rule.onNodeWithText("cable lat pulldown full range of motion").fetchSemanticsNode().boundsInRoot
-    val kg = rule.onNodeWithText("Kg").fetchSemanticsNode().boundsInRoot
+    val kg = rule.onNodeWithText("kg").fetchSemanticsNode().boundsInRoot
     // Two lines of cap-14 title: ~36 dp = 72 px at 320 dpi; a single line would be ~36 px.
     assertTrue("title height %s".format(title.height), title.height >= 64f)
     assertTrue("title height %s".format(title.height), title.height < 100f)

@@ -21,6 +21,7 @@ import ch.duartesantos.opengym.wear.data.FakeWorkoutRepository
 import ch.duartesantos.opengym.wear.data.TimeSource
 import ch.duartesantos.opengym.wear.theme.OpenGymBlue
 import ch.duartesantos.opengym.wear.theme.OpenGymMuted
+import ch.duartesantos.opengym.wear.theme.OpenGymWhite
 import ch.duartesantos.opengym.wear.theme.OpenGymWearTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -30,8 +31,8 @@ import org.junit.runner.RunWith
 import kotlin.math.abs
 
 /**
- * on the device: the `Kg` / `Reps` labels are read back from the **rendered pixels**, so this
- * fails if the colour is right in the Kotlin and wrong on the panel.
+ * on the device: the `kg` / `reps` labels and the two values are read back from the **rendered
+ * pixels**, so this fails if the colour is right in the Kotlin and wrong on the panel.
  *
  * Each label node is captured with `captureToImage` and its pixels counted against the two
  * expected values — [OpenGymBlue] `(29,130,234)` for the selected column, [OpenGymMuted]
@@ -92,12 +93,12 @@ class ExercisePageSelectionColourTest {
   }
 
   private fun assertKgSelected() {
-    val kgBlue = inkMatching("Kg", OpenGymBlue)
-    val repsBlue = inkMatching("Reps", OpenGymBlue)
-    val kgMuted = inkMatching("Kg", OpenGymMuted)
-    assertTrue("Kg should carry accent ink, got $kgBlue px", kgBlue > 40)
-    assertEquals("Reps should carry no accent ink, got $repsBlue px", 0, repsBlue)
-    assertTrue("Kg should carry no muted ink, got $kgMuted px", kgMuted < 5)
+    val kgBlue = inkMatching("kg", OpenGymBlue)
+    val repsBlue = inkMatching("reps", OpenGymBlue)
+    val kgMuted = inkMatching("kg", OpenGymMuted)
+    assertTrue("kg should carry accent ink, got $kgBlue px", kgBlue > 40)
+    assertEquals("reps should carry no accent ink, got $repsBlue px", 0, repsBlue)
+    assertTrue("kg should carry no muted ink, got $kgMuted px", kgMuted < 5)
   }
 
   /** The fresh page, no interaction at all: the request's easy-to-get-wrong half. */
@@ -106,6 +107,19 @@ class ExercisePageSelectionColourTest {
     show()
     rule.waitForIdle()
     assertKgSelected()
+    assertValueColours(weightSelected = true)
+  }
+
+  /**
+   * 2026-10-25: the values used to keep static colours (weight white, reps blue) whatever the crown
+   * was doing, so the card the user tapped did not change. The value now follows the selection, and
+   * this reads that off the panel: the selected value carries accent ink, the idle one white.
+   */
+  private fun assertValueColours(weightSelected: Boolean) {
+    val weightValue = inkMatching("50.0", if (weightSelected) OpenGymBlue else OpenGymWhite)
+    val repsValue = inkMatching("10", if (weightSelected) OpenGymWhite else OpenGymBlue)
+    assertTrue("weight value ink should follow the selection, got $weightValue px", weightValue > 40)
+    assertTrue("reps value ink should follow the selection, got $repsValue px", repsValue > 40)
   }
 
   /** Tapping the Reps card moves the crown target; the colour must follow immediately. */
@@ -118,12 +132,13 @@ class ExercisePageSelectionColourTest {
     rule.onNodeWithTag(EXERCISE_PAGE_REPS_TAG).performClick()
     rule.waitForIdle()
 
-    val repsBlue = inkMatching("Reps", OpenGymBlue)
-    val kgBlue = inkMatching("Kg", OpenGymBlue)
-    val repsMuted = inkMatching("Reps", OpenGymMuted)
-    assertTrue("Reps should carry accent ink after the tap, got $repsBlue px", repsBlue > 40)
-    assertEquals("Kg should carry no accent ink after the tap, got $kgBlue px", 0, kgBlue)
-    assertTrue("Reps should carry no muted ink after the tap, got $repsMuted px", repsMuted < 5)
+    val repsBlue = inkMatching("reps", OpenGymBlue)
+    val kgBlue = inkMatching("kg", OpenGymBlue)
+    val repsMuted = inkMatching("reps", OpenGymMuted)
+    assertTrue("reps should carry accent ink after the tap, got $repsBlue px", repsBlue > 40)
+    assertEquals("kg should carry no accent ink after the tap, got $kgBlue px", 0, kgBlue)
+    assertTrue("reps should carry no muted ink after the tap, got $repsMuted px", repsMuted < 5)
+    assertValueColours(weightSelected = false)
 
     // The tap genuinely re-routed the crown, not just the paint: one real SOURCE_ROTARY_ENCODER
     // detent moves the REPS and leaves the weight alone. Without this the test would only prove

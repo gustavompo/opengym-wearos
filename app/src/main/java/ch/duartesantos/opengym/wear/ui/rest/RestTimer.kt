@@ -358,10 +358,17 @@ internal fun formatCountdown(secondsRemaining: Int): String {
   return String.format(Locale.US, "%02d:%02d", seconds / 60, seconds % 60)
 }
 
-/** `Set 2/4: 50.0 kg x 10` - the set the user is about to do, which is the one the rest is for. */
-internal fun formatUpcomingSet(state: WorkoutState): String =
-  "Set ${state.currentSetIndex}/${state.totalSets}: " +
-    "${formatWeight(state.weightKg)} kg x ${state.reps}"
+/**
+ * `Set 2/4: 50.0 kg x 10` - the set the user is about to do, which is the one the rest is for.
+ *
+ * In the profile's own unit, like every other weight on the wrist: `weightKg` is the wire value
+ * (kg for every profile), so the number and the label both come from [WorkoutState.weightUnit].
+ */
+internal fun formatUpcomingSet(state: WorkoutState): String {
+  val unit = state.weightUnit
+  return "Set ${state.currentSetIndex}/${state.totalSets}: " +
+    "${formatWeight(unit.fromKg(state.weightKg))} ${unit.hintLabel} x ${state.reps}"
+}
 
 /**
  * The rest arc's angles in Compose's convention: 0 degrees at 3 o'clock, growing clockwise.

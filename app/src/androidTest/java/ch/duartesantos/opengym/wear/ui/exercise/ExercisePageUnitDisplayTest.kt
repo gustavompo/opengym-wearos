@@ -19,7 +19,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Task 2, on the device: an lb profile's page says `Lb` and shows pounds, and a kg profile is
+ * Task 2, on the device: an lb profile's page says `lb` and shows pounds, and a kg profile is
  * unchanged. The arithmetic is pinned on the JVM (`ExercisePageUnitTest`, `WeightUnitTest`); this
  * proves the page actually renders it.
  *
@@ -58,28 +58,28 @@ class ExercisePageUnitDisplayTest {
     show(WeightUnit.Pounds)
 
     // 50.0 kg on the wire is 110.2311 lb, snapped to openGym's 0.5 lb lattice -> 110.0.
-    rule.onNodeWithText("Lb").assertIsDisplayed()
+    rule.onNodeWithText("lb").assertIsDisplayed()
     rule.onNodeWithText("110.0").assertIsDisplayed()
     rule.onNodeWithText("109.0").assertIsDisplayed()
     rule.onNodeWithText("111.0").assertIsDisplayed()
     // The hint is the same set in the same unit.
     rule.onNodeWithText("prev. 110.0 lb x 10").assertIsDisplayed()
     // The crown's target is announced in the displayed unit too.
-    rule.onNodeWithContentDescription("Select Lb for the crown").assertIsDisplayed()
+    rule.onNodeWithContentDescription("Select lb for the crown").assertIsDisplayed()
     // And the old kg label is gone — not merely joined by the new one.
-    rule.onNodeWithText("Kg").assertDoesNotExist()
+    rule.onNodeWithText("kg").assertDoesNotExist()
     rule.onNodeWithText("50.0").assertDoesNotExist()
   }
 
   @Test
   fun aKgProfileIsExactlyWhatItWas() {
     show(WeightUnit.Kilograms)
-    rule.onNodeWithText("Kg").assertIsDisplayed()
+    rule.onNodeWithText("kg").assertIsDisplayed()
     rule.onNodeWithText("50.0").assertIsDisplayed()
     rule.onNodeWithText("49.5").assertIsDisplayed()
     rule.onNodeWithText("50.5").assertIsDisplayed()
     rule.onNodeWithText("prev. 50.0 kg x 10").assertIsDisplayed()
-    rule.onNodeWithContentDescription("Select Kg for the crown").assertIsDisplayed()
+    rule.onNodeWithContentDescription("Select kg for the crown").assertIsDisplayed()
   }
 
   @Test
@@ -88,7 +88,7 @@ class ExercisePageUnitDisplayTest {
     rule.onNodeWithText("110.0").assertIsDisplayed()
     // Tapping a card must not disturb the value; the value only moves on a detent, which the JVM
     // tests drive. This just proves the card is still tappable with the new label.
-    rule.onNodeWithContentDescription("Select Lb for the crown").performClick()
+    rule.onNodeWithContentDescription("Select lb for the crown").performClick()
     rule.onNodeWithText("110.0").assertIsDisplayed()
   }
 }
