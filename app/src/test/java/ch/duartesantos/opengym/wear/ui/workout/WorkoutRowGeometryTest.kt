@@ -72,8 +72,8 @@ class WorkoutRowGeometryTest {
   fun theRestingRowTitleBudgetKeepsTheCardInterior() {
     val width = 227f
     val capToEm = 0.711f
-    val nameFontFraction = (21f / 305f) / capToEm
-    val timerFontFraction = (22f / 305f) / capToEm
+    val nameFontFraction = (16f / 305f) / capToEm
+    val timerFontFraction = (14f / 305f) / capToEm
     val headerTopDp = 38f / 305f * width
     val gapNameTimerDp = 13f / 305f * width
     val gapTimerListDp = 14f / 305f * width

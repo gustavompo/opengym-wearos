@@ -114,9 +114,10 @@ private const val F_CARD_BORDER = 1.96f / REF_DISPLAY_PX
  * highest the name can sit without clipping at the bezel: measured with the real typeface, `Full Body A`
  * at cap 21 renders 118.7 dp on a 227 dp screen, and the chord at band-top fraction 38/305 is
  * 149.9 dp, minus the 8 dp per-side inset = 133.9 dp budget — so 38/305 is the first placement
- * with real headroom. The name→timer gap keeps the reference's measured 13 px; the gap to the list
- * is trimmed from 20 to 14 px because the reference's third band (y158..180) that used to justify
- * the extra air has no equivalent here: that space is now the list's.
+ * with real headroom. The name is now drawn at cap 16, so it only has more room. The name→timer gap
+ * keeps the reference's measured 13 px; the gap to the list is trimmed from 20 to 14 px because the
+ * reference's third band (y158..180) that used to justify the extra air has no equivalent here:
+ * that space is now the list's.
  *
  * With the header up, each row's band is a circle chord, not the card's measured 86.56 %d width —
  * a row scrolled to the top or bottom of the viewport would run under the bezel. Rows are therefore
@@ -133,8 +134,11 @@ private const val F_ROW_GAP = 8f / REF_DISPLAY_PX
 /** Bottom inset for the list, from the reference card's bottom at 92.13 %d. */
 private const val F_LIST_BOTTOM_INSET = 24f / REF_DISPLAY_PX
 
-private const val F_FONT_WORKOUT_NAME = (21f / REF_DISPLAY_PX) / CAP_TO_EM
-private const val F_FONT_TIMER = (22f / REF_DISPLAY_PX) / CAP_TO_EM
+// The reference drew the name at cap 21 and the timer at cap 22, which on a 227 dp disc left no room
+// for ordinary workout names. Both are reduced (name 16, timer 14) so a name fits whole and the
+// timer reads as a subtitle rather than a headline.
+private const val F_FONT_WORKOUT_NAME = (16f / REF_DISPLAY_PX) / CAP_TO_EM
+private const val F_FONT_TIMER = (14f / REF_DISPLAY_PX) / CAP_TO_EM
 private const val F_FONT_ROW_NAME = (15f / REF_DISPLAY_PX) / CAP_TO_EM
 private const val F_FONT_ROW_SETS = (16f / REF_DISPLAY_PX) / CAP_TO_EM
 
