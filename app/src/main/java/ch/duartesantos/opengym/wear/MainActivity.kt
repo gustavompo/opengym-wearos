@@ -3,6 +3,9 @@ package ch.duartesantos.opengym.wear
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.wear.compose.foundation.LocalAmbientModeManager
+import androidx.wear.compose.foundation.rememberAmbientModeManager
 import ch.duartesantos.opengym.wear.data.WorkoutRepository
 import ch.duartesantos.opengym.wear.link.LinkConfig
 import ch.duartesantos.opengym.wear.link.TransportWorkoutRepository
@@ -41,7 +44,19 @@ class MainActivity : ComponentActivity() {
       )
     repository = WorkoutRepositories.create(applicationContext, config)
 
-    setContent { WearApp(repository = repository) }
+    setContent {
+      val ambientModeManager = rememberAmbientModeManager()
+      CompositionLocalProvider(LocalAmbientModeManager provides ambientModeManager) {
+        WearApp(repository = repository)
+      }
+    }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    // The screen is the first thing the user sees after a wrist raise; publish the deadline's
+    // current value before that frame instead of waiting for the next tick.
+    repository.refresh()
   }
 
   override fun onDestroy() {

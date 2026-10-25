@@ -123,6 +123,11 @@ class TransportWorkoutRepository(
 
   override fun observeWorkout(): StateFlow<WorkoutState> = state.asStateFlow()
 
+  /** Publishes the current projection immediately, e.g. when the activity resumes. */
+  override fun refresh() {
+    publish()
+  }
+
   /** The workout page's tap state. */
   override fun observeExerciseSelection(): StateFlow<ExerciseSelection> = selection.asStateFlow()
 
@@ -445,16 +450,28 @@ class TransportWorkoutRepository(
    * and the ack timeout.
    */
   private suspend fun restAndAckSweeper() {
-    var sinceAckSweepMillis = 0L
+    var lastAckSweepMillis = timeSource.nowMillis()
     while (currentCoroutineContext().isActive) {
-      delay(tickIntervalMillis)
+      delay(nextTickDelayMillis(timeSource.nowMillis()))
       publish()
-      sinceAckSweepMillis += tickIntervalMillis
-      if (sinceAckSweepMillis >= ackTimeoutMillis) {
-        sinceAckSweepMillis = 0L
+      val now = timeSource.nowMillis()
+      if (now - lastAckSweepMillis >= ackTimeoutMillis) {
+        lastAckSweepMillis = now
         sweepUnacknowledged()
       }
     }
+  }
+
+  /**
+   * The next instant the displayed rest value can change, or [tickIntervalMillis] when there is no
+   * running, unpaused rest (or its deadline has passed).
+   */
+  private fun nextTickDelayMillis(nowMillis: Long): Long {
+    val endsAt =
+      synchronized(this) {
+        snapshot?.rest?.takeIf { it.running && !it.paused }?.endsAtMillis
+      }
+    return restTickDelayMillis(nowMillis, endsAt, tickIntervalMillis)
   }
 
   /** Re-sends commands still waiting for an ack, with their original ids, up to [MAX_COMMAND_ATTEMPTS]. */
@@ -500,6 +517,21 @@ class TransportWorkoutRepository(
     scope.coroutineContext[Job]?.cancel()
     transport.close()
   }
+}
+
+/**
+ * How long to wait before the rest display can next change.
+ *
+ * `remainingSeconds` is `ceil((endsAt - now) / tick)`, so the displayed value changes at
+ * `endsAt - k * tick`, not at process-start-relative intervals. Sleeping to that boundary is what
+ * keeps the first frame after a resume from showing a value up to one tick old.
+ */
+internal fun restTickDelayMillis(nowMillis: Long, endsAtMillis: Long?, tickIntervalMillis: Long): Long {
+  if (endsAtMillis == null) return tickIntervalMillis
+  val millisLeft = endsAtMillis - nowMillis
+  if (millisLeft <= 0L) return tickIntervalMillis
+  val toBoundary = millisLeft % tickIntervalMillis
+  return if (toBoundary == 0L) tickIntervalMillis else toBoundary
 }
 
 /** Rest adjustments and `skipRest` act on a rest clock, so they expire; everything else does not. */

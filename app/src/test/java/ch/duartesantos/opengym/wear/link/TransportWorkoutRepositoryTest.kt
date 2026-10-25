@@ -40,6 +40,36 @@ class TransportWorkoutRepositoryTest {
   // --- phone -> watch ---------------------------------------------------------------------------
 
   @Test
+  fun `the rest tick waits for the deadline's next second boundary`() {
+    assertEquals(1_000L, restTickDelayMillis(nowMillis = 0L, endsAtMillis = null, tickIntervalMillis = 1_000L))
+    assertEquals(
+      565L,
+      restTickDelayMillis(
+        nowMillis = 1_790_000_000_435L,
+        endsAtMillis = 1_790_000_090_000L,
+        tickIntervalMillis = 1_000L,
+      ),
+    )
+    assertEquals(
+      "an exact boundary waits a whole tick, not zero",
+      1_000L,
+      restTickDelayMillis(
+        nowMillis = 1_790_000_000_000L,
+        endsAtMillis = 1_790_000_089_000L,
+        tickIntervalMillis = 1_000L,
+      ),
+    )
+    assertEquals(
+      1_000L,
+      restTickDelayMillis(
+        nowMillis = 1_790_000_090_001L,
+        endsAtMillis = 1_790_000_090_000L,
+        tickIntervalMillis = 1_000L,
+      ),
+    )
+  }
+
+  @Test
   fun `mirrors the projection and counts the rest down from the absolute deadline`() = runTest {
     val clock = MutableTimeSource()
     val transport = LoopbackTransport()

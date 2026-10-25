@@ -28,6 +28,14 @@ interface WorkoutRepository {
   fun observeWorkout(): StateFlow<WorkoutState>
 
   /**
+   * Recomputes the projection now instead of waiting for the next tick.
+   *
+   * The default is a no-op: a repository whose state is not derived from a deadline has nothing to
+   * recompute.
+   */
+  fun refresh() {}
+
+  /**
    * Marks the open set done, stamps it with the current time, and starts that exercise's rest.
    * When it was the exercise's last set, advances [WorkoutState.exerciseName] to the next exercise.
    * When it was the *session's* last set, the session ends: no rest, and the state becomes

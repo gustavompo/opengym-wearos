@@ -34,6 +34,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.wear.compose.foundation.AmbientMode
+import androidx.wear.compose.foundation.LocalAmbientModeManager
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.Typography
@@ -203,6 +205,18 @@ fun RestTimer(
     sound.onRemainingChanged(state.restSecondsRemaining)
   }
 
+  // Ambient has no countdown and no shrinking arc: the system redraws at its own cadence, and a
+  // stale mm:ss is worse than no mm:ss. Taking only stable fields lets Compose skip this subtree
+  // on the repository's 1 Hz publishes. Null (previews, tests without the provider) is interactive.
+  if (LocalAmbientModeManager.current?.currentAmbientMode is AmbientMode.Ambient) {
+    AmbientRestTimer(
+      exerciseName = state.exerciseName,
+      totalSeconds = state.restSecondsTotal,
+      modifier = modifier,
+    )
+    return
+  }
+
   BoxWithConstraints(
     modifier = modifier.fillMaxSize().background(OpenGymBlack).testTag(REST_TIMER_TAG),
   ) {
@@ -293,6 +307,46 @@ fun RestTimer(
             }
             .padding(metrics.skipTouchPadding)
             .testTag(REST_TIMER_SKIP_TAG),
+      )
+    }
+  }
+}
+
+/**
+ * The ambient frame: the full ring and the two labels that do not change with the clock.
+ *
+ * It deliberately takes no remaining seconds: the ambient ring must not shrink, and a parameter
+ * that changes every second would defeat Compose's skipping on the repository's publishes.
+ */
+@Composable
+private fun AmbientRestTimer(
+  exerciseName: String,
+  totalSeconds: Int,
+  modifier: Modifier = Modifier,
+) {
+  BoxWithConstraints(
+    modifier = modifier.fillMaxSize().background(OpenGymBlack).testTag(REST_TIMER_TAG),
+  ) {
+    val typography = MaterialTheme.typography
+    val metrics = remember(maxWidth, typography) { RestMetrics(maxWidth, typography) }
+
+    Canvas(Modifier.matchParentSize()) { drawRestArc(totalSeconds, totalSeconds) }
+
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+      Text(
+        text = "Rest",
+        style = metrics.countdownStyle,
+        color = OpenGymWhite,
+        maxLines = 1,
+        modifier = Modifier.offsetY(metrics.countdownOffset),
+      )
+      ChordWrappedText(
+        text = "Next: $exerciseName",
+        style = metrics.detailStyle,
+        color = OpenGymMuted,
+        lineSafeWidth = { line -> metrics.nextLineCap(line) },
+        maxLines = REST_NEXT_MAX_LINES,
+        modifier = Modifier.offsetY(metrics.nextOffset).testTag(REST_TIMER_NEXT_TAG),
       )
     }
   }
