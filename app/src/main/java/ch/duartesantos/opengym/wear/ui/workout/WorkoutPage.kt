@@ -1,7 +1,6 @@
 package ch.duartesantos.opengym.wear.ui.workout
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.focusable
@@ -10,11 +9,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -32,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -57,6 +58,7 @@ import ch.duartesantos.opengym.wear.theme.OpenGymBlack
 import ch.duartesantos.opengym.wear.theme.OpenGymBlue
 import ch.duartesantos.opengym.wear.theme.OpenGymMuted
 import ch.duartesantos.opengym.wear.theme.OpenGymOutline
+import ch.duartesantos.opengym.wear.theme.OpenGymSurface
 import ch.duartesantos.opengym.wear.theme.OpenGymSurfaceRaised
 import ch.duartesantos.opengym.wear.theme.OpenGymWhite
 import ch.duartesantos.opengym.wear.ui.safeTextWidth
@@ -74,12 +76,11 @@ import kotlinx.coroutines.launch
  * reference's watch disc is 305 px — the same disc as `references/rest-period-timer.png`, which
  * `RestTimer.kt` measures against with the same `REF_DISPLAY_PX = 305f`.
  *
- *   card            264 x 89 px, corner radius ~32 px, side inset 21 px (border now the outline
- *  token; the current row's fill the raised token — see 29. The reference's
- *                    one measured neutral `#1C1C1E` is why the page itself and the non-current rows
- *                    keep `OpenGymSurface`/transparent-over-black)
+ *   card            264 x 89 px, side inset 21 px. Every row is a filled card (surface; the current
+ *                    one raised and edged in blue), so the page reads as cards, not black entries.
+ *                    The corner is tightened to 24 px for a less pill-like shape.
  *   card padding    13 px from the card's left edge to the first ink
- *   ink cap heights row name 15 px, row `n/N Sets` 16 px, workout name 21 px, elapsed timer 22 px
+ *   ink cap heights row name 13 px, progress label 10 px, workout name 16 px, elapsed timer 14 px
  *
  * Font sizes use `RestTimer.kt`'s form, not `ExercisePage.kt`'s: the cap height is a pure ratio of
  * the reference display, divided by Roboto's cap-to-em ratio (a number with no unit at all), and only
@@ -96,16 +97,15 @@ private const val CAP_TO_EM = 0.711f
 
 private const val F_CARD_W = 264f / REF_DISPLAY_PX
 private const val F_CARD_H = 89f / REF_DISPLAY_PX
-private const val F_CARD_RADIUS = 32f / REF_DISPLAY_PX
+
+/** A tighter corner than the reference's 32 px: the measured pill shape read as heavy on the wrist. */
+private const val F_CARD_RADIUS = 24f / REF_DISPLAY_PX
 private const val F_CARD_PAD = 13f / REF_DISPLAY_PX
 
-/*
- * The card's outline. The reference's card has no visible outline — it is a fill — so this is the
- * exercise page's measured 1.96 reference px, which its comment derives as the value that renders as
- * 3 device px after `Modifier.border` rounds the stroke width up. It exists here because the rows
- * that are *not* current are drawn as outlines on black, which is the theme's only other treatment.
- */
-private const val F_CARD_BORDER = 1.96f / REF_DISPLAY_PX
+/** The blue edge that marks the current exercise, and the progress rail under each name. */
+private const val F_ACCENT_W = 4f / REF_DISPLAY_PX
+private const val F_ROW_PROGRESS_H = 3f / REF_DISPLAY_PX
+private const val F_ROW_PROGRESS_GAP = 6f / REF_DISPLAY_PX
 
 /*
  * The header's vertical placement on the round disc. The reference's own name band starts at y90 of
@@ -139,8 +139,9 @@ private const val F_LIST_BOTTOM_INSET = 24f / REF_DISPLAY_PX
 // timer reads as a subtitle rather than a headline.
 private const val F_FONT_WORKOUT_NAME = (16f / REF_DISPLAY_PX) / CAP_TO_EM
 private const val F_FONT_TIMER = (14f / REF_DISPLAY_PX) / CAP_TO_EM
-private const val F_FONT_ROW_NAME = (15f / REF_DISPLAY_PX) / CAP_TO_EM
-private const val F_FONT_ROW_SETS = (16f / REF_DISPLAY_PX) / CAP_TO_EM
+// Row name 13 (was 15), progress label 10 (was 16 — it used to be the larger of the two).
+private const val F_FONT_ROW_NAME = (13f / REF_DISPLAY_PX) / CAP_TO_EM
+private const val F_FONT_ROW_SETS = (10f / REF_DISPLAY_PX) / CAP_TO_EM
 
 private const val LINE_HEIGHT_FACTOR = 1.2f
 
@@ -395,18 +396,17 @@ private fun ExerciseRow(
 ) {
   val shape = RoundedCornerShape(metrics.cardRadius)
   val completed = row.setsTotal > 0 && row.setsDone >= row.setsTotal
+  val progress = if (row.setsTotal > 0) (row.setsDone.toFloat() / row.setsTotal).coerceIn(0f, 1f) else 0f
 
-  // Palette: the *current* row is the raised filled card, every other row is the same
-  // outline over black the exercise page already uses; the border is the outline token. The old
-  // #1C1C1E-on-#1C1C1E border was the measured "no visible edge" complaint.
-  // A finished row's name stays muted — no ticks.
-  val fill = if (isCurrent) OpenGymSurfaceRaised else Color.Transparent
+  // Every row is a filled card, so the page is a stack of cards rather than entries on black; the
+  // current one is raised and carries a blue edge. A finished row's name stays muted — no ticks.
+  val fill = if (isCurrent) OpenGymSurfaceRaised else OpenGymSurface
   val nameColor =
     when {
       // The one state the reference has no equivalent for. rule 6 requires the row to be
       // *pending*, and a pending state the user cannot see is not a state. Blue is the theme's
       // existing signal colour and the only token that reads as "happening now". The pending row's
-      // card is left at the outline treatment — it becomes the raised card when the state arrives.
+      // card stays a plain surface — it becomes the raised card when the state arrives.
       isPending -> OpenGymBlue
       isCurrent -> OpenGymWhite
       completed -> OpenGymMuted
@@ -424,7 +424,6 @@ private fun ExerciseRow(
         .height(metrics.rowHeight)
         .clip(shape)
         .background(fill, shape)
-        .border(metrics.cardBorder, OpenGymOutline, shape)
         .clickable(
           onClick = {
             // The system bezel's own clock tick, gated on the view's haptic setting — see
@@ -443,6 +442,15 @@ private fun ExerciseRow(
         },
     contentAlignment = Alignment.CenterStart,
   ) {
+    if (isCurrent) {
+      Box(
+        Modifier
+          .align(Alignment.CenterStart)
+          .fillMaxHeight()
+          .width(metrics.accentWidth)
+          .background(OpenGymBlue),
+      )
+    }
     Column(Modifier.padding(horizontal = metrics.cardPad)) {
       Text(
         text = row.name,
@@ -456,12 +464,30 @@ private fun ExerciseRow(
         // padding) is the binding cap, so short names never ellipsise.
         modifier = Modifier.safeTextWidth(displayWidth, rowCentreFraction),
       )
-      Text(
-        text = setsLabel(row),
-        style = metrics.rowSetsStyle,
-        color = OpenGymMuted,
-        maxLines = 1,
-      )
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.safeTextWidth(displayWidth, rowCentreFraction),
+      ) {
+        Text(
+          text = setsLabel(row),
+          style = metrics.rowSetsStyle,
+          color = OpenGymMuted,
+          maxLines = 1,
+        )
+        Spacer(Modifier.width(metrics.progressGap))
+        Box(
+          Modifier.weight(1f)
+            .height(metrics.progressHeight)
+            .clip(RoundedCornerShape(50))
+            .background(OpenGymOutline),
+        ) {
+          Box(
+            Modifier.fillMaxWidth(progress)
+              .fillMaxHeight()
+              .background(if (isCurrent) OpenGymBlue else OpenGymMuted),
+          )
+        }
+      }
     }
   }
 }
@@ -506,8 +532,10 @@ private class WorkoutMetrics(unit: Dp, typography: Typography) {
   val cardWidth = unit * F_CARD_W
   val rowHeight = unit * F_CARD_H
   val cardRadius = unit * F_CARD_RADIUS
-  val cardBorder = unit * F_CARD_BORDER
   val cardPad = unit * F_CARD_PAD
+  val accentWidth = unit * F_ACCENT_W
+  val progressHeight = unit * F_ROW_PROGRESS_H
+  val progressGap = unit * F_ROW_PROGRESS_GAP
   val rowGap = unit * F_ROW_GAP
   /** One row's top to the next's — `rowHeight + rowGap`, the LazyColumn's stride. */
   val rowStride = rowHeight + rowGap
