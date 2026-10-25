@@ -5,6 +5,7 @@ import ch.duartesantos.opengym.wear.data.TimeSource
 import ch.duartesantos.opengym.wear.data.WorkoutRepository
 import ch.duartesantos.opengym.wear.data.WorkoutRow
 import ch.duartesantos.opengym.wear.data.WorkoutState
+import ch.duartesantos.opengym.wear.data.titleCased
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -388,7 +389,7 @@ class TransportWorkoutRepository(
         }
         WorkoutState(
           isWorkoutActive = true,
-          exerciseName = workout.exerciseName,
+          exerciseName = workout.exerciseName.titleCased(),
           exerciseIndex = workout.exerciseIndex,
           exerciseCount = workout.exerciseCount,
           currentSetIndex = workout.setIndex,
@@ -404,7 +405,7 @@ class TransportWorkoutRepository(
           restSecondsTotal = rest.totalForDisplay(now),
           workoutName = workout.name,
           startedAtMillis = workout.startedAtMillis,
-          exercises = entries?.map { WorkoutRow(it.index, it.name, it.setsDone, it.setsTotal) }.orEmpty(),
+          exercises = entries?.map { WorkoutRow(it.index, it.name.titleCased(), it.setsDone, it.setsTotal) }.orEmpty(),
         )
       }
 

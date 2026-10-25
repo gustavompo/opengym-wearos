@@ -237,13 +237,15 @@ class ExercisePageTest {
   fun aLongExerciseNameTakesTwoTitleLinesAndStaysAboveTheLabelRow() {
     val workout = ActiveWorkout.FullBodyA.copy(
       exercises = listOf(
-        ActiveWorkout.FullBodyA.exercises[0].copy(name = "cable lat pulldown full range of motion")
+        ActiveWorkout.FullBodyA.exercises[0].copy(name = "cable lat pulldown full range of motion"),
       ),
     )
     show(workout)
 
-    rule.onNodeWithText("cable lat pulldown full range of motion").assertIsDisplayed()
-    val title = rule.onNodeWithText("cable lat pulldown full range of motion").fetchSemanticsNode().boundsInRoot
+    // The projection title-cases every exercise name (data/TitleCase.kt), so the page renders it
+    // capitalised while the semantics still carry the same 39 characters — two lines' worth.
+    rule.onNodeWithText("Cable Lat Pulldown Full Range Of Motion").assertIsDisplayed()
+    val title = rule.onNodeWithText("Cable Lat Pulldown Full Range Of Motion").fetchSemanticsNode().boundsInRoot
     val kg = rule.onNodeWithText("kg").fetchSemanticsNode().boundsInRoot
     // Two lines of cap-14 title: ~36 dp = 72 px at 320 dpi; a single line would be ~36 px.
     assertTrue("title height %s".format(title.height), title.height >= 64f)

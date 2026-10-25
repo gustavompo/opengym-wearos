@@ -82,7 +82,7 @@ internal fun ActiveWorkout.toWorkoutState(
 
   return WorkoutState(
     isWorkoutActive = true,
-    exerciseName = exercise.name,
+    exerciseName = exercise.name.titleCased(),
     exerciseIndex = currentExerciseIndex,
     exerciseCount = exercises.size,
     currentSetIndex = exercise.sets.currentSetIndex(),
@@ -113,7 +113,7 @@ internal fun List<WorkoutExercise>.toRows(): List<WorkoutRow> =
   mapIndexed { index, exercise ->
     WorkoutRow(
       index = index,
-      name = exercise.name,
+      name = exercise.name.titleCased(),
       setsDone = exercise.sets.count { it.done },
       setsTotal = exercise.sets.size,
     )

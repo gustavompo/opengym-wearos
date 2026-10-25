@@ -294,7 +294,7 @@ class DataLayerTransportTest {
 
     val mirrored = repository.observeWorkout().value
     assertTrue("a stored frame must mirror with no change event", mirrored.isWorkoutActive)
-    assertEquals("triceps press", mirrored.exerciseName)
+    assertEquals("Triceps Press", mirrored.exerciseName)
     assertEquals(2, mirrored.currentSetIndex)
     assertEquals(3, mirrored.totalSets)
   }
